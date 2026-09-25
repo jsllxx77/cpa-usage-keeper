@@ -1,7 +1,7 @@
 import { useRef, useState, type CSSProperties, type PointerEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { calculateCacheReadRate, formatCompactNumber, formatPerMinuteValue, formatUsd } from '@/utils/usage';
-import type { UsageChartGradientColor } from '@/utils/usage/chartConfig';
+import { resolveUsageChartColor, type UsageChartGradientColor } from '@/utils/usage/chartConfig';
 import styles from './AnalysisPanel.module.scss';
 
 export type AnalysisRankingItem = {
@@ -21,16 +21,10 @@ export function getAnalysisRankingColor(identity: string, index: number, palette
   if (palette[index]) return palette[index];
   let hash = 2166136261;
   for (const character of identity) hash = Math.imul(hash ^ character.codePointAt(0)!, 16777619);
-  const hue = (hash >>> 0) % 360;
-  const hex = (saturation: number, lightness: number) => {
-    const amplitude = saturation * Math.min(lightness, 1 - lightness);
-    return `#${[0, 8, 4].map((offset) => {
-      const channel = (offset + hue / 30) % 12;
-      const value = lightness - amplitude * Math.max(-1, Math.min(channel - 3, 9 - channel, 1));
-      return Math.round(value * 255).toString(16).padStart(2, '0');
-    }).join('')}`;
-  };
-  return { base: hex(0.68, 0.44), light: hex(0.78, 0.7) };
+  // Geist：扩展色保持灰阶，按标识在 18%~82% 明度区间内稳定取值。
+  const level = 46 + ((hash >>> 0) % 164);
+  const gray = `#${level.toString(16).padStart(2, '0').repeat(3)}`;
+  return { base: gray, light: gray };
 }
 
 export function useAnalysisHighlight(scope: string) {
@@ -75,7 +69,7 @@ export function AnalysisRankingList({ items, label, windowMinutes, highlight }: 
         return (
           <li key={item.key}>
             <button type="button" className={styles.rankingItem}
-              style={{ '--ranking-color': item.color.base } as CSSProperties}
+              style={{ '--ranking-color': resolveUsageChartColor(item.color.base) } as CSSProperties}
               data-active={active === item.key} data-muted={Boolean(active && active !== item.key)}
               aria-pressed={highlight.selected === item.key}
               aria-label={`${index + 1}. ${item.label}, ${t('usage_stats.total_tokens')}: ${formatCompactNumber(item.total)}, ${t('usage_stats.analysis_composition_token_percent')}: ${item.share.toFixed(2)}%, ${t('usage_stats.cache_rate')}: ${cacheRate === null ? '--' : `${cacheRate.toFixed(2)}%`}`}

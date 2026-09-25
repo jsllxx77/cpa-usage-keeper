@@ -160,7 +160,7 @@
   border: 1px solid color-mix(in srgb, var(--border-color) 82%, transparent);
   border-radius: 10px;
   background: color-mix(in srgb, var(--bg-primary) 96%, var(--bg-secondary));
-  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.16);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   color: var(--text-secondary);
   font-size: 11px;
   font-weight: 500;
@@ -563,8 +563,8 @@
   border: 1px solid var(--border-color);
   border-top: 3px solid var(--podium-accent);
   border-radius: var(--keeper-card-radius);
-  background: linear-gradient(145deg, color-mix(in srgb, var(--podium-accent) 9%, var(--bg-primary)), var(--bg-primary));
-  box-shadow: var(--shadow);
+  background: var(--bg-primary);
+  box-shadow: none;
 
   &::after {
     position: absolute;
@@ -574,19 +574,19 @@
     height: 120px;
     border: 18px solid color-mix(in srgb, var(--podium-accent) 14%, transparent);
     border-radius: 50%;
-    content: '';
+    content: none;
   }
 }
 
 .podiumCard1 {
-  --podium-accent: #c99a2e;
+  --podium-accent: var(--text-primary);
 
   grid-column: 2;
   grid-row: 1;
 }
 
 .podiumCard2 {
-  --podium-accent: #9aa0a6;
+  --podium-accent: var(--text-tertiary);
 
   grid-column: 1;
   grid-row: 1;
@@ -595,7 +595,7 @@
 }
 
 .podiumCard3 {
-  --podium-accent: #b7794a;
+  --podium-accent: var(--border-hover);
 
   grid-column: 3;
   grid-row: 1;

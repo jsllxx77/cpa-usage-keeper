@@ -30,12 +30,12 @@
   }
 
   &.btn-secondary {
-    background-color: var(--bg-tertiary);
+    background-color: var(--bg-primary);
     border-color: var(--border-color);
     color: var(--text-primary);
 
     &:hover {
-      background-color: var(--bg-hover, var(--bg-tertiary));
+      background-color: var(--bg-tertiary);
       border-color: var(--border-hover);
     }
   }
@@ -82,16 +82,16 @@
 // 背景、边框和文字仍由 btn-* variant 决定，避免全局化后改变现有按钮视觉。
 .btn-action {
   min-height: 32px;
-  border-radius: 999px;
+  border-radius: 6px;
   padding: 7px 12px;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 600;
   transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease,
     box-shadow 0.15s ease, opacity 0.15s ease;
 
   &.btn {
     min-height: 32px;
-    border-radius: 999px;
+    border-radius: 6px;
     padding: 7px 12px;
     font-size: 12px;
   }
@@ -109,21 +109,27 @@
     flex: 0 0 auto;
   }
 
-  &.btn-primary {
-    box-shadow: 0 8px 20px rgba($primary-color, 0.18);
-  }
-
+  &.btn-primary,
   &.btn-secondary,
-  &.btn-ghost {
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-  }
-
+  &.btn-ghost,
   &.btn-danger {
     box-shadow: none;
   }
 
+  // 次级动作：白底黑字 + 细描边
+  &.btn-ghost {
+    border-color: var(--border-color);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+
+    &:hover:not(:disabled) {
+      border-color: var(--border-hover);
+      background: var(--bg-tertiary);
+    }
+  }
+
   &:hover:not(:disabled) {
-    transform: translateY(-1px);
+    transform: none;
   }
 }
 
@@ -137,22 +143,22 @@
 .main-action-button-shell {
   display: inline-flex;
   align-items: stretch;
-  min-height: 42px;
-  padding: 4px;
-  border: 1px solid var(--border-color);
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--bg-secondary) 78%, transparent);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  box-shadow: none;
 }
 
 .btn.btn-action.main-action-button {
   min-height: 32px;
   min-width: 0;
   max-width: 100%;
-  border: 0;
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--primary-color);
+  background: var(--primary-color);
+  color: var(--primary-contrast);
+  box-shadow: none;
   transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease,
     transform 0.2s ease;
 
@@ -168,16 +174,17 @@
   }
 
   &:hover:not(:disabled) {
-    background: var(--bg-primary);
-    color: var(--text-primary);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-    transform: translateY(-1px);
+    border-color: var(--primary-hover);
+    background: var(--primary-hover);
+    color: var(--primary-contrast);
+    box-shadow: none;
+    transform: none;
   }
 
   &:active:not(:disabled) {
-    background: var(--bg-primary);
-    color: var(--text-primary);
-    transform: translateY(0);
+    background: var(--primary-active);
+    color: var(--primary-contrast);
+    transform: none;
   }
 
   &:focus-visible {
@@ -186,8 +193,9 @@
   }
 
   &:disabled {
-    background: var(--bg-primary);
-    color: var(--text-secondary);
+    border-color: var(--border-color);
+    background: var(--bg-tertiary);
+    color: var(--text-tertiary);
     box-shadow: none;
     transform: none;
   }
@@ -214,13 +222,9 @@
 }
 
 [data-theme='dark'] {
-  .btn {
-    color: #fff;
-  }
-
   .btn.btn-secondary,
   .btn.btn-ghost {
-    color: #fff;
+    color: var(--text-primary);
   }
 }
 
@@ -230,14 +234,14 @@ textarea {
   border: 1px solid var(--border-color);
   border-radius: $radius-md;
   padding: 10px 12px;
-  background-color: var(--bg-secondary);
+  background-color: var(--bg-primary);
   color: var(--text-primary);
   transition: border-color $transition-fast, box-shadow $transition-fast;
 
   &:focus {
     outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba($primary-color, 0.18);
+    border-color: var(--border-hover);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--text-primary) 8%, transparent);
   }
 
   &:disabled {
@@ -278,7 +282,12 @@ textarea {
   background-color: var(--bg-primary);
   border: 1px solid var(--border-color);
   border-radius: var(--keeper-card-radius);
-  box-shadow: var(--shadow-lg);
+  box-shadow: none;
+  transition: border-color $transition-fast;
+
+  &:hover {
+    border-color: var(--border-hover);
+  }
 }
 
 .card {
@@ -623,7 +632,7 @@ textarea {
   background: var(--bg-primary);
   border-radius: var(--keeper-card-radius);
   border: 1px solid var(--border-color);
-  box-shadow: $shadow-lg;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
   max-width: 100%;
   max-height: 90vh;
   overflow: hidden;

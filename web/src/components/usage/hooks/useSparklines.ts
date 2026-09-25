@@ -44,13 +44,15 @@ export interface UsageSparklineSeries {
   cost: number[];
 }
 
+// Geist：Sparkline 统一为纯黑 1.5px 细线、无填充；深色模式由 lib/chartjs 反相为浅灰。
+const SPARKLINE_MONO = { border: '#000000', background: 'transparent' } as const;
 export const SPARKLINE_COLORS = {
-  requests: { border: '#3b82f6', background: 'rgba(59, 130, 246, 0.18)' },
-  tokens: { border: '#8b5cf6', background: 'rgba(139, 92, 246, 0.18)' },
-  rpm: { border: '#22c55e', background: 'rgba(34, 197, 94, 0.18)' },
-  tpm: { border: '#f97316', background: 'rgba(249, 115, 22, 0.18)' },
-  cacheReadRate: { border: '#14b8a6', background: 'rgba(20, 184, 166, 0.18)' },
-  cost: { border: '#f59e0b', background: 'rgba(245, 158, 11, 0.18)' },
+  requests: SPARKLINE_MONO,
+  tokens: SPARKLINE_MONO,
+  rpm: SPARKLINE_MONO,
+  tpm: SPARKLINE_MONO,
+  cacheReadRate: SPARKLINE_MONO,
+  cost: SPARKLINE_MONO,
 } as const;
 
 const normalizeSparklineNumber = (value: unknown): number => {
@@ -109,10 +111,10 @@ export function useSparklines({ usage, loading }: UseSparklinesOptions): UseSpar
               data: input.data,
               borderColor: color,
               backgroundColor,
-              fill: true,
+              fill: false,
               tension: 0.45,
               pointRadius: 0,
-              borderWidth: 2
+              borderWidth: 1.5
             }
           ]
         }

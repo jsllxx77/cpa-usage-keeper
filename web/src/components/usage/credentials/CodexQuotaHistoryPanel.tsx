@@ -46,14 +46,14 @@ interface QuotaCycleSummary {
 type QuotaSummaryKind = 'used' | 'full-estimate' | 'median' | 'estimated-unused'
 
 const QUOTA_EFFICIENCY_BAR_COLORS = {
-  direct: { base: '#2563eb', light: '#93c5fd' },
-  averaged: { base: '#d97706', light: '#fde68a' },
+  direct: { base: '#000000', light: '#000000' },
+  averaged: { base: '#a8a8a8', light: '#a8a8a8' },
 } satisfies Record<'direct' | 'averaged', UsageChartGradientColor>
 
 const QUOTA_REMAINING_LINE_COLORS = {
   // 低饱和暖灰只承担趋势提示，贴合页面的纸感中性色，避免与 Token 柱体和 Cost 虚线争夺焦点。
-  light: 'rgba(120, 113, 108, 0.68)',
-  dark: 'rgba(168, 162, 158, 0.68)',
+  light: 'rgba(102, 102, 102, 0.68)',
+  dark: 'rgba(161, 161, 161, 0.68)',
 } as const
 
 interface CodexQuotaHistoryPanelProps {
@@ -772,7 +772,7 @@ function buildEfficiencyChart(
           borderColor: USAGE_CHART_REQUESTS_LINE_COLOR,
           backgroundColor: USAGE_CHART_REQUESTS_LINE_COLOR,
           pointBackgroundColor: USAGE_CHART_REQUESTS_LINE_COLOR,
-          pointBorderColor: isDark ? '#111827' : '#ffffff',
+          pointBorderColor: isDark ? '#0a0a0a' : '#ffffff',
           pointBorderWidth: 2,
           // 连续折线不画圆点；只有无法形成线段的单点才保留可见标记。
           pointRadius: (context) => isIsolatedCostPoint(costValues, context.dataIndex) ? 3 : 0,
@@ -791,7 +791,7 @@ function buildEfficiencyChart(
           borderColor: remainingLineColor,
           backgroundColor: remainingLineColor,
           pointBackgroundColor: remainingLineColor,
-          pointBorderColor: isDark ? '#111827' : '#ffffff',
+          pointBorderColor: isDark ? '#0a0a0a' : '#ffffff',
           pointBorderWidth: 1.5,
           pointRadius: 0,
           pointHoverRadius: 3,

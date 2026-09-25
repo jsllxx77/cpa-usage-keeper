@@ -12,7 +12,7 @@ import styles from './UsageComparisonCharts.module.scss';
 import usageStyles from '@/pages/UsagePage.module.scss';
 
 const EMPTY: UsageComparisonItem[] = [];
-const OTHER_COLOR = { base: '#64748b', light: '#cbd5e1' };
+const OTHER_COLOR = { base: '#e0e0e0', light: '#e0e0e0' };
 const rowStyle = (row: ComparisonRow, index: number): CSSProperties => {
   const color = row.other ? OTHER_COLOR : USAGE_CHART_COMPOSITION_COLORS[index % USAGE_CHART_COMPOSITION_COLORS.length];
   return { '--usage-light': color.light } as CSSProperties;

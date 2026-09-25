@@ -5,50 +5,75 @@
 
 import type { ChartOptions } from 'chart.js';
 
-export const USAGE_CHART_REQUESTS_LINE_COLOR = '#ff5a40';
+// Geist 灰阶图表色板：同一序列内按明度拉开层次，仅成功/警告/危险保留低饱和功能色。
+// 色值为浅色模式基准；深色模式经 resolveUsageChartColor 映射为同明度层级的反相灰阶。
+export const USAGE_CHART_REQUESTS_LINE_COLOR = '#000000';
 
 export interface UsageChartGradientColor {
   base: string;
   light: string;
 }
 
+const gray = (value: string): UsageChartGradientColor => ({ base: value, light: value });
+
 export const USAGE_CHART_COMPOSITION_COLORS: UsageChartGradientColor[] = [
-  { base: '#1d4ed8', light: '#60a5fa' },
-  { base: '#ca8a04', light: '#facc15' },
-  { base: '#15803d', light: '#22c55e' },
-  { base: '#7e22ce', light: '#c084fc' },
-  { base: '#b91c1c', light: '#ef4444' },
-  { base: '#0891b2', light: '#67e8f9' },
+  gray('#000000'),
+  gray('#8f8f8f'),
+  gray('#3d3d3d'),
+  gray('#c7c7c7'),
+  gray('#666666'),
+  gray('#e0e0e0'),
 ];
 export const USAGE_CHART_TOKEN_COLORS = {
-  input: { base: '#2563eb', light: '#93c5fd' },
-  output: { base: '#16a34a', light: '#86efac' },
-  cacheRead: { base: '#d97706', light: '#fde68a' },
-  cacheWrite: { base: '#e11d48', light: '#fda4af' },
-  reasoning: { base: '#8b5cf6', light: '#d8b4fe' },
+  input: gray('#000000'),
+  output: gray('#666666'),
+  cacheRead: gray('#a8a8a8'),
+  cacheWrite: gray('#d4d4d4'),
+  reasoning: gray('#3d3d3d'),
   requests: USAGE_CHART_REQUESTS_LINE_COLOR,
-  cost: '#14b8a6',
+  cost: '#8f8f8f',
 };
 
-// Realtime 的新增结果图表使用更饱和的渐变；Analysis 的 Token Usage Over Time
-// 与既有通用图表继续使用上面的旧色板，避免新增图表的视觉调整相互影响。
 export const USAGE_CHART_REALTIME_COLORS = {
-  input: { base: '#2563eb', light: '#60a5fa' },
-  output: { base: '#16a34a', light: '#22c55e' },
-  cacheRead: { base: '#d97706', light: '#f59e0b' },
-  cacheWrite: { base: '#e11d48', light: '#fb7185' },
+  input: gray('#000000'),
+  output: gray('#45a557'),
+  cacheRead: gray('#a8a8a8'),
+  cacheWrite: gray('#d4d4d4'),
 } as const;
 
-// 共用 Analysis 柱形图的纵向渐变，保证不同业务图表的柱体质感一致。
+// 深色画布上把黑色系映射为对应的浅色，保持同样的明度层级。
+const DARK_CHART_COLOR_MAP: Record<string, string> = {
+  '#000000': '#ededed',
+  '#3d3d3d': '#c2c2c2',
+  '#666666': '#9e9e9e',
+  '#8f8f8f': '#707070',
+  '#a8a8a8': '#5c5c5c',
+  '#c7c7c7': '#474747',
+  '#d4d4d4': '#383838',
+  '#e0e0e0': '#333333',
+  '#45a557': '#62c073',
+  '#e5484d': '#ff6166',
+  '#f5a524': '#f5b544',
+};
+
+const isDarkDocument = () => typeof document !== 'undefined'
+  && document.documentElement.getAttribute('data-theme') === 'dark';
+
+export const resolveUsageChartColor = (color: string, isDark = isDarkDocument()) => (
+  isDark ? DARK_CHART_COLOR_MAP[color.toLowerCase()] ?? color : color
+);
+
+// 保留原有 CanvasGradient 接口（测试与调用方依赖），Geist 下使用同色纯色填充。
 export const toUsageChartGradientFill = (
   context: { chart: { ctx: CanvasRenderingContext2D; chartArea?: { top: number; bottom: number } } },
   color: UsageChartGradientColor,
 ) => {
   const { chart } = context;
-  if (!chart.chartArea) return color.base;
+  const base = resolveUsageChartColor(color.base);
+  if (!chart.chartArea) return base;
   const gradient = chart.ctx.createLinearGradient(0, chart.chartArea.top, 0, chart.chartArea.bottom);
-  gradient.addColorStop(0, color.light);
-  gradient.addColorStop(1, color.base);
+  gradient.addColorStop(0, resolveUsageChartColor(color.light));
+  gradient.addColorStop(1, base);
   return gradient;
 };
 
@@ -60,6 +85,7 @@ export interface UsageChartTheme {
   averageLine: string;
   tooltipBg: string;
   tooltipBorder: string;
+  tooltipTitle: string;
   tooltipBody: string;
 }
 
@@ -67,22 +93,30 @@ export interface UsageChartTheme {
 export const getUsageChartTheme = (isDark: boolean): UsageChartTheme => ({
   textPrimary: isDark ? '#f5f1e8' : '#111827',
   textSecondary: isDark ? 'rgba(255, 255, 255, 0.72)' : 'rgba(17, 24, 39, 0.72)',
-  grid: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(17, 24, 39, 0.06)',
-  axis: isDark ? 'rgba(255, 255, 255, 0.10)' : 'rgba(17, 24, 39, 0.10)',
-  averageLine: isDark ? 'rgba(203, 213, 225, 0.62)' : 'rgba(71, 85, 105, 0.62)',
-  tooltipBg: isDark ? 'rgba(17, 24, 39, 0.94)' : 'rgba(255, 255, 255, 0.98)',
-  tooltipBorder: isDark ? 'rgba(255, 255, 255, 0.10)' : 'rgba(17, 24, 39, 0.10)',
-  tooltipBody: isDark ? 'rgba(255, 255, 255, 0.86)' : '#374151',
+  // Geist：低透明度虚线格线（dash 在 lib/chartjs 统一设置），黑底白字微型 Tooltip；深色模式反相。
+  grid: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
+  axis: isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.10)',
+  averageLine: isDark ? 'rgba(237, 237, 237, 0.45)' : 'rgba(0, 0, 0, 0.35)',
+  tooltipBg: isDark ? '#ededed' : '#000000',
+  tooltipBorder: isDark ? '#ededed' : '#000000',
+  tooltipTitle: isDark ? '#000000' : '#ffffff',
+  tooltipBody: isDark ? 'rgba(0, 0, 0, 0.72)' : 'rgba(255, 255, 255, 0.78)',
 });
 
 export const buildUsageChartTooltipStyle = (chartTheme: UsageChartTheme) => ({
   backgroundColor: chartTheme.tooltipBg,
-  titleColor: chartTheme.textPrimary,
+  titleColor: chartTheme.tooltipTitle,
   bodyColor: chartTheme.tooltipBody,
   footerColor: chartTheme.tooltipBody,
   borderColor: chartTheme.tooltipBorder,
-  borderWidth: 1,
-  padding: 10,
+  borderWidth: 0,
+  cornerRadius: 6,
+  padding: 8,
+  titleFont: { size: 11, weight: 600 },
+  bodyFont: { size: 11 },
+  footerFont: { size: 11 },
+  boxWidth: 6,
+  boxHeight: 6,
   titleSpacing: 2,
   titleMarginBottom: 6,
   bodySpacing: 2,

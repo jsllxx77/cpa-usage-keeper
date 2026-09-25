@@ -6,10 +6,7 @@
   min-height: 100svh;
   display: flex;
   flex-direction: column;
-  background:
-    radial-gradient(1200px 520px at 12% -8%, rgba($primary-color, 0.12), transparent 58%),
-    radial-gradient(880px 480px at 100% 0%, rgba(0, 0, 0, 0.06), transparent 52%),
-    var(--bg-secondary);
+  background: var(--bg-secondary);
   padding: var(--keeper-page-padding-top, 28px) var(--keeper-page-padding-x, 20px) var(--keeper-page-padding-bottom, 48px);
 
   @include mobile {
@@ -41,7 +38,7 @@
   background: color-mix(in srgb, var(--bg-primary) 84%, transparent);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
-  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 
   @include mobile {
     position: static;
@@ -859,7 +856,7 @@
   background: color-mix(in srgb, var(--bg-primary) 92%, transparent);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.16);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 
   @include mobile {
     top: 12px;
@@ -1059,24 +1056,11 @@
 }
 
 .statCard.dailyAverageCard {
-  --accent-border: rgba(139, 92, 246, 0.36);
-  --stat-card-accent-strip: linear-gradient(
-    90deg,
-    transparent 0%,
-    #3b82f6 var(--stat-card-strip-corner-offset),
-    #8b5cf6 28%,
-    #f59e0b 48%,
-    transparent var(--stat-card-strip-fade-end)
-  );
-
   height: 100%;
   min-width: 0;
   min-height: 0;
   padding-inline: 18px;
-  background:
-    radial-gradient(90% 120% at 0% 0%, rgba(59, 130, 246, 0.14), transparent 58%),
-    linear-gradient(180deg, rgba(139, 92, 246, 0.07), rgba(255, 255, 255, 0)),
-    var(--bg-primary);
+  background: var(--bg-primary);
 
   @include desktop {
     padding-inline: 22px;
@@ -1092,9 +1076,9 @@
 }
 
 .dailyAverageTitle {
-  color: var(--text-primary);
-  font-size: 13px;
-  font-weight: 800;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 500;
   line-height: 1.2;
   letter-spacing: 0;
   white-space: nowrap;
@@ -1105,12 +1089,12 @@
   max-width: 100%;
   padding: 4px 8px;
   overflow: hidden;
-  border-radius: $radius-full;
-  border: 1px solid color-mix(in srgb, var(--border-color) 72%, transparent);
-  background: color-mix(in srgb, var(--bg-secondary) 86%, transparent);
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
   color: var(--text-secondary);
   font-size: 10px;
-  font-weight: 700;
+  font-weight: 500;
   line-height: 1.2;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1145,9 +1129,10 @@
   width: 28px;
   height: 28px;
   place-items: center;
-  border-radius: $radius-md;
-  background: color-mix(in srgb, var(--metric-accent) 12%, var(--bg-primary));
-  color: var(--metric-accent);
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
 }
 
 .dailyAverageMetricCopy {
@@ -1158,9 +1143,9 @@
 }
 
 .dailyAverageMetricLabel {
-  color: var(--text-tertiary);
+  color: var(--text-secondary);
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 500;
   line-height: 1.15;
   letter-spacing: 0;
   overflow: hidden;
@@ -1170,8 +1155,9 @@
 
 .dailyAverageMetricValue {
   color: var(--text-primary);
-  font-size: 20px;
-  font-weight: 800;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
   line-height: 1.15;
   font-variant-numeric: tabular-nums;
   letter-spacing: 0;
@@ -1186,100 +1172,43 @@
   line-height: 1.2;
 }
 
+// Geist 指标卡：白底 1px 浅灰边框、6~8px 圆角、无阴影/渐变；Hover 只加深边框。
+// 原有的 --accent* 变量保留为兼容接口（调用方仍会传入），但不再参与渲染。
 .statCard {
-  --accent: var(--primary-color);
-  --accent-soft: rgba($primary-color, 0.18);
-  --accent-border: rgba($primary-color, 0.35);
-  --stat-card-strip-corner-offset: 12px;
-  --stat-card-strip-fade-end: calc(100% - clamp(18px, 4%, 32px));
-  --stat-card-accent-strip: linear-gradient(
-    90deg,
-    transparent 0%,
-    var(--accent) var(--stat-card-strip-corner-offset),
-    color-mix(in srgb, var(--accent) 68%, transparent) 42%,
-    transparent var(--stat-card-strip-fade-end)
-  );
+  --accent: var(--text-primary);
+  --accent-soft: transparent;
+  --accent-border: var(--border-hover);
 
   position: relative;
-  padding: 18px;
-  background:
-    radial-gradient(120% 140% at 12% 0%, var(--accent-soft) 0%, rgba(0, 0, 0, 0) 62%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0)), var(--bg-primary);
-  // 顶部七张统计卡的 24px 圆角试用项；需要退回时只恢复这一处。
+  padding: 16px;
+  background: var(--bg-primary);
   border-radius: var(--keeper-card-radius);
   border: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  min-height: 176px;
-  box-shadow: var(--shadow-lg);
-  transition:
-    transform $transition-fast,
-    box-shadow $transition-fast,
-    border-color $transition-fast;
+  gap: 8px;
+  min-height: 132px;
+  box-shadow: none;
+  transition: border-color $transition-fast;
   overflow: hidden;
 
-  &::before {
-    content: '';
-    position: absolute;
-    inset: -1px;
-    border-radius: calc(var(--keeper-card-radius) + 1px);
-    padding: 4px;
-    background: var(--stat-card-accent-strip);
-    opacity: 0.95;
-    pointer-events: none;
-    clip-path: inset(0 calc(100% - 56px) calc(100% - var(--keeper-card-radius)) 0);
-    -webkit-mask:
-      linear-gradient(#000 0 0) content-box,
-      linear-gradient(#000 0 0);
-    mask:
-      linear-gradient(#000 0 0) content-box,
-      linear-gradient(#000 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-  }
-
-  // 左侧以固定像素错峰接入圆角；右侧以比例和像素下限适配不同卡片宽度。
-  &::after {
-    content: '';
-    position: absolute;
-    inset: 0 0 auto;
-    height: 3px;
-    background: var(--stat-card-accent-strip);
-    opacity: 0.95;
-    pointer-events: none;
-    -webkit-mask:
-      linear-gradient(90deg, #000 0%, #000 calc(var(--stat-card-strip-fade-end) - clamp(70px, 12%, 100px)), transparent var(--stat-card-strip-fade-end)) 0 0 / 100% 17% no-repeat,
-      linear-gradient(90deg, transparent 0%, transparent 12px, #000 32px, #000 calc(var(--stat-card-strip-fade-end) - clamp(82px, 14%, 112px)), transparent calc(var(--stat-card-strip-fade-end) - clamp(6px, 1%, 10px))) 0 20% / 100% 17% no-repeat,
-      linear-gradient(90deg, transparent 0%, transparent 16px, #000 38px, #000 calc(var(--stat-card-strip-fade-end) - clamp(94px, 16%, 126px)), transparent calc(var(--stat-card-strip-fade-end) - clamp(12px, 2%, 18px))) 0 40% / 100% 17% no-repeat,
-      linear-gradient(90deg, transparent 0%, transparent 20px, #000 44px, #000 calc(var(--stat-card-strip-fade-end) - clamp(106px, 18%, 144px)), transparent calc(var(--stat-card-strip-fade-end) - clamp(18px, 3%, 26px))) 0 60% / 100% 17% no-repeat,
-      linear-gradient(90deg, transparent 0%, transparent 24px, #000 50px, #000 calc(var(--stat-card-strip-fade-end) - clamp(118px, 21%, 162px)), transparent calc(var(--stat-card-strip-fade-end) - clamp(24px, 4%, 34px))) 0 80% / 100% 17% no-repeat,
-      linear-gradient(90deg, transparent 0%, transparent 28px, #000 56px, #000 calc(var(--stat-card-strip-fade-end) - clamp(130px, 24%, 180px)), transparent calc(var(--stat-card-strip-fade-end) - clamp(30px, 5%, 42px))) 0 100% / 100% 17% no-repeat;
-    mask:
-      linear-gradient(90deg, #000 0%, #000 calc(var(--stat-card-strip-fade-end) - clamp(70px, 12%, 100px)), transparent var(--stat-card-strip-fade-end)) 0 0 / 100% 17% no-repeat,
-      linear-gradient(90deg, transparent 0%, transparent 12px, #000 32px, #000 calc(var(--stat-card-strip-fade-end) - clamp(82px, 14%, 112px)), transparent calc(var(--stat-card-strip-fade-end) - clamp(6px, 1%, 10px))) 0 20% / 100% 17% no-repeat,
-      linear-gradient(90deg, transparent 0%, transparent 16px, #000 38px, #000 calc(var(--stat-card-strip-fade-end) - clamp(94px, 16%, 126px)), transparent calc(var(--stat-card-strip-fade-end) - clamp(12px, 2%, 18px))) 0 40% / 100% 17% no-repeat,
-      linear-gradient(90deg, transparent 0%, transparent 20px, #000 44px, #000 calc(var(--stat-card-strip-fade-end) - clamp(106px, 18%, 144px)), transparent calc(var(--stat-card-strip-fade-end) - clamp(18px, 3%, 26px))) 0 60% / 100% 17% no-repeat,
-      linear-gradient(90deg, transparent 0%, transparent 24px, #000 50px, #000 calc(var(--stat-card-strip-fade-end) - clamp(118px, 21%, 162px)), transparent calc(var(--stat-card-strip-fade-end) - clamp(24px, 4%, 34px))) 0 80% / 100% 17% no-repeat,
-      linear-gradient(90deg, transparent 0%, transparent 28px, #000 56px, #000 calc(var(--stat-card-strip-fade-end) - clamp(130px, 24%, 180px)), transparent calc(var(--stat-card-strip-fade-end) - clamp(30px, 5%, 42px))) 0 100% / 100% 17% no-repeat;
-    -webkit-mask-composite: source-over, source-over, source-over, source-over, source-over;
-    mask-composite: add, add, add, add, add;
-  }
-
   &:hover {
-    transform: translateY(-2px);
-    border-color: var(--accent-border);
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.22);
+    border-color: var(--border-hover);
   }
 
   @include mobile {
-    min-height: 168px;
+    min-height: 124px;
   }
 }
 
 .primaryStatSlot {
   .statValue {
     font-size: 32px;
+  }
+
+  .statTrend {
+    flex-basis: 240px;
+    height: 56px;
   }
 }
 
@@ -1305,16 +1234,14 @@
 }
 
 .statIconBadge {
-  width: 34px;
-  height: 34px;
-  border-radius: $radius-md;
+  width: 16px;
+  height: 16px;
   display: grid;
   place-items: center;
-  color: #fff;
-  font-size: 13px;
-  background: var(--accent);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.25);
+  color: var(--text-tertiary);
+  background: transparent;
+  border: 0;
+  box-shadow: none;
   flex-shrink: 0;
 
   svg {
@@ -1334,16 +1261,17 @@
 
 .statLabel {
   font-size: 12px;
-  color: var(--text-tertiary);
-  font-weight: 700;
+  color: var(--text-secondary);
+  font-weight: 500;
   letter-spacing: 0;
 }
 
 .statValue {
-  font-size: 28px;
-  font-weight: 800;
+  font-size: 26px;
+  font-weight: 600;
   color: var(--text-primary);
-  line-height: 1.2;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
   font-variant-numeric: tabular-nums;
 }
 
@@ -1389,6 +1317,7 @@
 }
 
 .statMetaRow {
+  margin-top: auto;
   display: flex;
   flex-wrap: wrap;
   gap: 8px 10px;
@@ -1413,20 +1342,37 @@
   color: var(--text-tertiary);
 }
 
+// 数值与右侧极简 Sparkline 同行：左侧紧凑大数字，右侧无底框的细线。
+.statValueLine {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  min-width: 0;
+
+  > .statValue {
+    flex: 0 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
 .statTrend {
-  margin-top: auto;
-  background: var(--bg-tertiary);
-  border-radius: $radius-md;
-  padding: 8px;
-  height: 58px;
-  border: 1px solid var(--border-color);
+  flex: 0 1 132px;
+  min-width: 72px;
+  height: 36px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
 }
 
 .statTrendPlaceholder {
   width: 100%;
   height: 100%;
-  background: var(--bg-secondary);
-  border-radius: $radius-md;
+  border-bottom: 1px dashed var(--border-color);
 }
 
 .sparkline {
@@ -1914,11 +1860,9 @@
   align-items: start;
   gap: 14px;
   padding: 14px;
-  border: 1px solid color-mix(in srgb, var(--border-color) 86%, transparent);
-  border-radius: 20px;
-  background:
-    radial-gradient(360px 120px at 0% 0%, rgba($primary-color, 0.08), transparent 62%),
-    color-mix(in srgb, var(--bg-secondary) 72%, transparent);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-primary);
 }
 
 .apiKeySettingsSummary {
@@ -2353,8 +2297,8 @@
 }
 
 .sessionSettingsSourceStandard {
-  background: color-mix(in srgb, #3b82f6 12%, var(--bg-primary));
-  color: #3b82f6;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
 }
 
 .sessionSettingsSourceEmbed {
@@ -2974,8 +2918,8 @@
   }
 
   input:checked + .requestEventsColumnVisibilityTrack {
-    border-color: color-mix(in srgb, #38bdf8 68%, var(--border-color));
-    background: linear-gradient(135deg, #2563eb 0%, #38bdf8 58%, #67e8f9 100%);
+    border-color: var(--primary-color);
+    background: var(--primary-color);
   }
 
   input:checked + .requestEventsColumnVisibilityTrack .requestEventsColumnVisibilityThumb {
@@ -2983,7 +2927,7 @@
   }
 
   input:focus-visible + .requestEventsColumnVisibilityTrack {
-    outline: 2px solid #38bdf8;
+    outline: 2px solid var(--border-hover);
     outline-offset: 2px;
   }
 }
@@ -3001,9 +2945,9 @@
   width: 42px;
   height: 24px;
   overflow: hidden;
-  border: 1px solid color-mix(in srgb, var(--border-color) 76%, #dbeafe);
+  border: 1px solid var(--border-color);
   border-radius: 999px;
-  background: color-mix(in srgb, #dbeafe 34%, var(--bg-primary));
+  background: var(--bg-tertiary);
   transition: border-color 0.18s ease, background 0.18s ease;
 }
 
@@ -3014,10 +2958,8 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: linear-gradient(145deg, #fff, color-mix(in srgb, var(--bg-primary) 86%, #dbeafe));
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.95),
-    0 4px 10px rgba(15, 23, 42, 0.22);
+  background: var(--bg-primary);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
   transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.18s ease;
 }
 
@@ -3496,8 +3438,8 @@
 }
 
 .requestEventsLogSectionOpen {
-  border-color: color-mix(in srgb, var(--primary-color) 26%, var(--border-color));
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
+  border-color: var(--border-hover);
+  box-shadow: none;
 }
 
 .requestEventsLogSectionHeader {
@@ -3975,7 +3917,7 @@
 }
 
 .overviewRealtimePairedMetricTokenLabel {
-  color: #3b82f6;
+  color: var(--text-primary);
 }
 
 .overviewRealtimePairedMetricRequestLabel {
@@ -4181,7 +4123,7 @@
   inset: 0 auto 0 0;
   min-width: 3px;
   border-radius: inherit;
-  background: linear-gradient(90deg, #3b82f6, #14b8a6);
+  background: var(--text-primary);
 }
 
 .overviewRealtimeUsageMeta {
@@ -4234,20 +4176,20 @@
 }
 
 .tokenActivityCard {
-  --token-activity-level-1: #dbeafe;
-  --token-activity-level-2: #93c5fd;
-  --token-activity-level-3: #60a5fa;
-  --token-activity-level-4: #3b82f6;
-  --token-activity-level-5: #1d4ed8;
+  --token-activity-level-1: #e0e0e0;
+  --token-activity-level-2: #b3b3b3;
+  --token-activity-level-3: #808080;
+  --token-activity-level-4: #4d4d4d;
+  --token-activity-level-5: #000000;
 }
 
 :global([data-theme='dark']) .tokenActivityCard {
   // 两种主题都用浅→深表示 Token 量增加；暗色背景下收窄亮度范围以保留辨识度。
-  --token-activity-level-1: #60a5fa;
-  --token-activity-level-2: #3b82f6;
-  --token-activity-level-3: #2563eb;
-  --token-activity-level-4: #1d4ed8;
-  --token-activity-level-5: #1e40af;
+  --token-activity-level-1: #ededed;
+  --token-activity-level-2: #b3b3b3;
+  --token-activity-level-3: #8a8a8a;
+  --token-activity-level-4: #666666;
+  --token-activity-level-5: #474747;
 }
 
 .activityCardHeader {
@@ -4283,7 +4225,7 @@
 }
 
 .tokenActivitySummaryValue {
-  color: #3b82f6;
+  color: var(--text-primary);
 }
 
 .activitySummaryDetails {
@@ -4317,11 +4259,11 @@
 }
 
 .healthCountDotSuccess {
-  background: #22c55e;
+  background: var(--success-color);
 }
 
 .healthCountDotFailure {
-  background: #ef4444;
+  background: var(--danger-color);
 }
 
 
@@ -4574,4 +4516,61 @@
     .container > [data-dashboard-toolbar] { margin-bottom: 12px; }
   }
   @media (max-width: 360px) { padding-inline: 16px; }
+}
+
+// ---------------------------------------------------------------------------
+// Geist 覆盖层：设置区子面板统一 8px 圆角、白底细边框；分段控件选中态去阴影改细描边。
+// 追加在文件末尾以减少与上游的合并冲突。
+// ---------------------------------------------------------------------------
+.priceForm,
+.priceItem,
+.sessionSettingsItem,
+.apiKeySettingsItem {
+  border-radius: 8px;
+  background: var(--bg-primary);
+}
+
+.sessionSettingsClient {
+  border-radius: 6px;
+}
+
+.overviewRealtimeDimensionTabActive,
+.overviewRealtimeWindowButtonActive,
+.recentActivityWindowButtonActive {
+  box-shadow: inset 0 0 0 1px var(--border-color);
+}
+
+.topBar {
+  border-radius: 8px;
+  background: var(--bg-primary);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+}
+
+.updateCheckToast {
+  border-radius: 8px;
+  background: var(--bg-primary);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+// 分类信息（Token 类型、请求标签、模型切换）回归黑灰；涨跌与成功/失败保留功能色。
+.requestEventsTokenMetricInput,
+.requestEventsTokenMetricOutput,
+.requestEventsTokenMetricReasoning,
+.requestEventsCacheMetricRead,
+.requestEventsStackedResponse,
+.overviewRealtimePairedMetricRequestLabel {
+  color: var(--text-secondary);
+}
+
+.overviewRealtimePairedMetricValueUp,
+.overviewRealtimeMetricUp .overviewRealtimeMetricValue {
+  color: var(--success-color);
+}
+
+.sessionSettingsSourceEmbed {
+  background: var(--warning-bg);
+  color: var(--warning-text);
 }

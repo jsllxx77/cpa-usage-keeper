@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Line } from 'react-chartjs-2';
+import '@/lib/chartjs';
 import {
   IconDiamond,
   IconDollarSign,
@@ -141,18 +142,18 @@ export function StatCards({
       key: 'requests',
       label: t('usage_stats.total_requests'),
       icon: <IconSatellite size={16} />,
-      accent: '#3b82f6',
-      accentSoft: 'rgba(59, 130, 246, 0.18)',
-      accentBorder: 'rgba(59, 130, 246, 0.34)',
+      accent: 'var(--text-primary)',
+      accentSoft: 'transparent',
+      accentBorder: 'var(--border-hover)',
       value: loading ? '-' : (usageSnapshot?.total_requests ?? 0).toLocaleString(),
       meta: (
         <>
           <span className={styles.statMetaItem}>
-            <span className={styles.statMetaDot} style={{ backgroundColor: '#10b981' }} />
+            <span className={styles.statMetaDot} style={{ backgroundColor: 'var(--success-color)' }} />
             {t('usage_stats.success_requests')}: {loading ? '-' : (usageSnapshot?.success_count ?? 0)}
           </span>
           <span className={styles.statMetaItem}>
-            <span className={styles.statMetaDot} style={{ backgroundColor: '#c65746' }} />
+            <span className={styles.statMetaDot} style={{ backgroundColor: 'var(--danger-color)' }} />
             {t('usage_stats.failed_requests')}: {loading ? '-' : (usageSnapshot?.failure_count ?? 0)}
           </span>
           <span className={styles.statMetaItem}>
@@ -167,9 +168,9 @@ export function StatCards({
       key: 'tokens',
       label: t('usage_stats.total_tokens'),
       icon: <IconDiamond size={16} />,
-      accent: '#8b5cf6',
-      accentSoft: 'rgba(139, 92, 246, 0.18)',
-      accentBorder: 'rgba(139, 92, 246, 0.35)',
+      accent: 'var(--text-primary)',
+      accentSoft: 'transparent',
+      accentBorder: 'var(--border-hover)',
       value: loading ? '-' : formatCompactNumber(usageSnapshot?.total_tokens ?? 0),
       meta: (
         <>
@@ -193,9 +194,9 @@ export function StatCards({
       key: 'rpm',
       label: t('usage_stats.rpm'),
       icon: <IconTimer size={16} />,
-      accent: '#22c55e',
-      accentSoft: 'rgba(34, 197, 94, 0.18)',
-      accentBorder: 'rgba(34, 197, 94, 0.32)',
+      accent: 'var(--text-primary)',
+      accentSoft: 'transparent',
+      accentBorder: 'var(--border-hover)',
       value: loading ? '-' : formatPerMinuteValue(rateStats.rpm),
       meta: (
         <span className={styles.statMetaItem}>
@@ -209,9 +210,9 @@ export function StatCards({
       key: 'tpm',
       label: t('usage_stats.tpm'),
       icon: <IconTrendingUp size={16} />,
-      accent: '#f97316',
-      accentSoft: 'rgba(249, 115, 22, 0.18)',
-      accentBorder: 'rgba(249, 115, 22, 0.32)',
+      accent: 'var(--text-primary)',
+      accentSoft: 'transparent',
+      accentBorder: 'var(--border-hover)',
       value: loading ? '-' : formatPerMinuteValue(rateStats.tpm),
       meta: (
         <span className={styles.statMetaItem}>
@@ -225,9 +226,9 @@ export function StatCards({
       key: 'cache-read-rate',
       label: t('usage_stats.cache_rate'),
       icon: <IconPercent size={16} />,
-      accent: '#14b8a6',
-      accentSoft: 'rgba(20, 184, 166, 0.18)',
-      accentBorder: 'rgba(20, 184, 166, 0.34)',
+      accent: 'var(--text-primary)',
+      accentSoft: 'transparent',
+      accentBorder: 'var(--border-hover)',
       value: loading || cacheReadRateStats.cacheReadRate === null ? '-' : `${formatFixedTwoDecimals(cacheReadRateStats.cacheReadRate)}%`,
       meta: (
         <>
@@ -247,9 +248,9 @@ export function StatCards({
       key: 'cost',
       label: t('usage_stats.total_cost'),
       icon: <IconDollarSign size={16} />,
-      accent: '#f59e0b',
-      accentSoft: 'rgba(245, 158, 11, 0.18)',
-      accentBorder: 'rgba(245, 158, 11, 0.32)',
+      accent: 'var(--text-primary)',
+      accentSoft: 'transparent',
+      accentBorder: 'var(--border-hover)',
       value: loading ? '-' : formatUsd(totalCost),
       meta: (
         <>
@@ -288,19 +289,21 @@ export function StatCards({
         </div>
         <span className={styles.statIconBadge}>{card.icon}</span>
       </div>
-      <div className={styles.statValue}>{card.value}</div>
-      {card.meta && <div className={styles.statMetaRow}>{card.meta}</div>}
-      <div className={styles.statTrend}>
-        {card.trend ? (
-          <Line
-            className={styles.sparkline}
-            data={card.trend.data}
-            options={sparklineOptions}
-          />
-        ) : (
-          <div className={styles.statTrendPlaceholder}></div>
-        )}
+      <div className={styles.statValueLine}>
+        <div className={styles.statValue}>{card.value}</div>
+        <div className={styles.statTrend}>
+          {card.trend ? (
+            <Line
+              className={styles.sparkline}
+              data={card.trend.data}
+              options={sparklineOptions}
+            />
+          ) : (
+            <div className={styles.statTrendPlaceholder}></div>
+          )}
+        </div>
       </div>
+      {card.meta && <div className={styles.statMetaRow}>{card.meta}</div>}
     </div>
   );
 

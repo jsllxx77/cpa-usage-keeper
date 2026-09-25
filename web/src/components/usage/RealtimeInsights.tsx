@@ -6,13 +6,13 @@ import { Chart as ChartJS, type ChartData, type ChartOptions, type Plugin } from
 import type { RealtimeCacheLevelPoint, RealtimeInsights, RealtimeWindowSummary } from '@/lib/types';
 import { Card } from '@/components/ui/Card';
 import { formatCompactNumber, formatUsd } from '@/utils/usage';
-import { buildUsageChartTooltipStyle, getUsageChartTheme, toUsageChartGradientFill, USAGE_CHART_REALTIME_COLORS as REALTIME_COLORS, USAGE_CHART_TOKEN_COLORS as COLORS } from '@/utils/usage/chartConfig';
+import { buildUsageChartTooltipStyle, getUsageChartTheme, resolveUsageChartColor, toUsageChartGradientFill, USAGE_CHART_REALTIME_COLORS as REALTIME_COLORS, USAGE_CHART_TOKEN_COLORS as COLORS } from '@/utils/usage/chartConfig';
 import usageStyles from '@/pages/UsagePage.module.scss';
 import styles from './RealtimeInsights.module.scss';
 
-const FAILURE_COLOR = { base: '#b91c1c', light: '#ef4444' };
-const CACHE_RATE_COLOR = '#14b8a6';
-const FAILURE_RATE_COLOR = '#f97316';
+const FAILURE_COLOR = { base: '#e5484d', light: '#e5484d' };
+const CACHE_RATE_COLOR = '#666666';
+const FAILURE_RATE_COLOR = '#f5a524';
 const ratio = (value: number, denominator: number) => denominator > 0 ? value / denominator * 100 : null;
 const percent = (value: number | null, fractionDigits = 1) => value === null ? '—' : `${value.toFixed(fractionDigits)}%`;
 type Translate = (key: string) => string;
@@ -146,10 +146,10 @@ export function RealtimeDiagnostics({ insights, labels, isDark, isMobile }: { in
           {mixTotal > 0 ? <Doughnut data={mixData} options={mixOptions} plugins={TOKEN_MIX_PLUGINS} role="img" aria-label={`${t('usage_stats.insights_mix')}: ${cacheShareLabel} ${cacheShare}`} /> : <div className={styles.emptyRing}><span>—</span></div>}
         </div>
         <dl className={styles.mixLegend}>{mix.map(item => <div key={item.label} className={styles.mixItem}>
-          <dt><i style={{background:`linear-gradient(180deg, ${item.color.light}, ${item.color.base})`}} />{item.label}</dt>
+          <dt><i style={{background:resolveUsageChartColor(item.color.base,isDark)}} />{item.label}</dt>
           <dd><strong>{formatCompactNumber(item.value)}</strong><span>{percent(ratio(item.value,mixTotal))}</span></dd>
           <dd className={styles.mixTrack} aria-hidden="true">
-            <i style={{width:`${ratio(item.value,mixTotal) ?? 0}%`,background:`linear-gradient(90deg, ${item.color.light}, ${item.color.base})`}} />
+            <i style={{width:`${ratio(item.value,mixTotal) ?? 0}%`,background:resolveUsageChartColor(item.color.base,isDark)}} />
           </dd>
         </div>)}</dl>
       </div>

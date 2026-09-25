@@ -7,12 +7,13 @@ import {
 } from './ActivityHeatmapGrid';
 import styles from '@/pages/UsagePage.module.scss';
 
+// 健康度属于功能色：保留红→琥珀→绿语义，降低饱和度以贴合 Geist 灰阶界面。
 const HEALTH_LEVEL_COLORS = [
-  '#ef4444',
-  '#f97316',
-  '#facc15',
-  '#84cc16',
-  '#22c55e',
+  '#e5484d',
+  '#f08d49',
+  '#f5c451',
+  '#9ccf8a',
+  '#45a557',
 ] as const;
 
 export const parseTime = parseActivityTime;

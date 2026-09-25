@@ -5,7 +5,7 @@
   position: relative;
   flex: 0 0 auto;
   min-width: 0;
-  --range-slider-accent: #3b82f6;
+  --range-slider-accent: var(--text-primary);
 }
 
 .desktopShell,
@@ -155,7 +155,7 @@
 }
 
 .rangePanel {
-  --range-slider-accent: #3b82f6;
+  --range-slider-accent: var(--text-primary);
   --custom-calendar-range-bg: color-mix(in srgb, var(--primary-color) 18%, transparent);
   --custom-calendar-selected-bg: var(--primary-active);
   --custom-calendar-selected-text: var(--primary-contrast, #fff);
@@ -1184,5 +1184,78 @@
   .rangeInput::-moz-range-thumb {
     width: 46px;
     height: 46px;
+  }
+}
+
+// Geist：滑杆去除液态渐变、光晕与粒子，改为灰轨 + 纯黑进度 + 白色细描边圆钮。
+// 以覆盖层形式追加在文件末尾，保持上游原规则（含 reduced-motion 约束）不变，便于同步。
+.sliderRail {
+  height: 6px;
+  top: 21px;
+  background: var(--bg-tertiary);
+  box-shadow: inset 0 0 0 1px var(--border-color);
+}
+
+.sliderFill {
+  background: var(--text-primary);
+  box-shadow: none;
+
+  &::before,
+  &::after {
+    content: none;
+    animation: none;
+  }
+}
+
+.liquidParticle {
+  display: none;
+}
+
+.rangeInput::-webkit-slider-thumb {
+  width: 20px;
+  height: 20px;
+  margin-top: 6px;
+  border: 1px solid var(--border-hover);
+  background: var(--bg-primary);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+}
+
+.rangeInput::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--border-hover);
+  background: var(--bg-primary);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+}
+
+.rangeInput:focus-visible::-webkit-slider-thumb,
+.rangeInput:focus-visible::-moz-range-thumb {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--text-primary) 16%, transparent);
+}
+
+@media (pointer: coarse) {
+  .rangeInput::-webkit-slider-thumb {
+    width: 28px;
+    height: 28px;
+    margin-top: 3px;
+  }
+
+  .rangeInput::-moz-range-thumb {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+.sliderDot,
+.sliderDotActive {
+  width: 4px;
+  height: 4px;
+  box-shadow: none;
+}
+
+@include mobile {
+  .sliderRail {
+    top: 23px;
+    height: 6px;
   }
 }

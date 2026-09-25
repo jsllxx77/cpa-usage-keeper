@@ -31,8 +31,8 @@
   max-width: 100%;
   min-height: 52px;
   padding: 4px var(--toolbar-inset);
-  border-radius: 28px;
-  box-shadow: 0 8px 24px rgb(33 40 57 / 13%), 0 1px 3px rgb(33 40 57 / 7%);
+  border-radius: 8px;
+  box-shadow: none;
   pointer-events: auto;
 }
 
@@ -61,7 +61,7 @@
   flex-basis: 44px;
   width: 44px;
   height: 44px;
-  border-radius: 22px;
+  border-radius: 6px;
   &:hover:not(:disabled) { background: var(--toolbar-hover); }
   &:disabled { opacity: .55; cursor: default; }
 }
@@ -71,9 +71,9 @@
 .selection, .currentPage {
   background: var(--toolbar-selected);
   color: var(--text-primary);
-  border: 1px solid color-mix(in srgb, var(--text-primary) 8%, transparent);
-  border-radius: 20px;
-  box-shadow: 0 1px 2px rgb(0 0 0 / 8%), 0 3px 8px rgb(0 0 0 / 6%);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  box-shadow: none;
 }
 .selection {
   position: absolute;
@@ -83,10 +83,10 @@
   pointer-events: none;
   transition: transform .26s cubic-bezier(.2, .75, .25, 1);
 }
-.tab { position: relative; padding: 9px 11px; border-radius: 22px; font-weight: 550; color: var(--toolbar-action); white-space: nowrap; }
+.tab { position: relative; padding: 9px 11px; border-radius: 6px; font-weight: 550; color: var(--toolbar-action); white-space: nowrap; }
 .tab[aria-selected='true'] { color: var(--text-primary); font-weight: 650; }
 .tab:hover { background: var(--toolbar-hover); }
-.pageTrigger { display: none; width: max-content; max-width: 100%; gap: 6px; border-radius: 24px; }
+.pageTrigger { display: none; width: max-content; max-width: 100%; gap: 6px; border-radius: 6px; }
 .pageTrigger > svg { flex: 0 0 14px; display: block; color: var(--toolbar-muted); transition: transform .2s ease; }
 .pageTrigger[aria-expanded='true'] > svg { transform: rotate(180deg); }
 .currentPage { display: flex; align-items: center; justify-content: center; min-width: 0; min-height: 32px; padding: 5px 12px; line-height: 20px; font-weight: 650; overflow-wrap: anywhere; }
@@ -112,7 +112,7 @@
   min-height: 44px;
   padding: 4px 8px;
   gap: 6px;
-  border-radius: 22px;
+  border-radius: 6px;
   border-color: transparent;
   background: transparent;
   box-shadow: none;

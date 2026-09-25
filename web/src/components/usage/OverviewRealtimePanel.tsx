@@ -71,12 +71,13 @@ const THROUGHPUT_Y_TICK_COUNT = 6;
 const THROUGHPUT_Y_INTERVAL_COUNT = THROUGHPUT_Y_TICK_COUNT - 1;
 const THROUGHPUT_LEGEND_BOTTOM_GAP = 10;
 
+// Geist 灰阶：主序列纯黑，次序列中灰；深色模式由 lib/chartjs 统一反相。
 const CHART_COLORS = {
-  token: '#3b82f6',
-  ttft: '#f59e0b',
-  latency: '#22c55e',
-  request: '#f97316',
-  cache: '#14b8a6',
+  token: '#000000',
+  ttft: '#8f8f8f',
+  latency: '#000000',
+  request: '#8f8f8f',
+  cache: '#666666',
 } as const;
 
 const REALTIME_DURATION_UNITS = {
@@ -282,8 +283,8 @@ function buildRealtimeLineOptions(
 ): ChartOptions<'line'> {
   const gridColor = isDark ? 'rgba(255, 255, 255, 0.07)' : 'rgba(17, 24, 39, 0.07)';
   const tickColor = isDark ? 'rgba(255, 255, 255, 0.66)' : 'rgba(17, 24, 39, 0.66)';
-  const tooltipBg = isDark ? 'rgba(17, 24, 39, 0.94)' : 'rgba(255, 255, 255, 0.98)';
-  const tooltipText = isDark ? '#ffffff' : '#111827';
+  const tooltipBg = isDark ? '#ededed' : '#000000';
+  const tooltipText = isDark ? '#000000' : '#ffffff';
   return {
     responsive: true,
     maintainAspectRatio: false,
@@ -294,8 +295,9 @@ function buildRealtimeLineOptions(
         backgroundColor: tooltipBg,
         titleColor: tooltipText,
         bodyColor: tooltipText,
-        borderColor: isDark ? 'rgba(255, 255, 255, 0.10)' : 'rgba(17, 24, 39, 0.10)',
-        borderWidth: 1,
+        borderColor: tooltipBg,
+        borderWidth: 0,
+        cornerRadius: 6,
         padding: 10,
         displayColors: true,
         callbacks: {
@@ -344,8 +346,8 @@ function buildThroughputOptions(
 ): ChartOptions<'line'> {
   const gridColor = isDark ? 'rgba(255, 255, 255, 0.07)' : 'rgba(17, 24, 39, 0.07)';
   const tickColor = isDark ? 'rgba(255, 255, 255, 0.66)' : 'rgba(17, 24, 39, 0.66)';
-  const tooltipBg = isDark ? 'rgba(17, 24, 39, 0.94)' : 'rgba(255, 255, 255, 0.98)';
-  const tooltipText = isDark ? '#ffffff' : '#111827';
+  const tooltipBg = isDark ? '#ededed' : '#000000';
+  const tooltipText = isDark ? '#000000' : '#ffffff';
   const requestMax = throughputRequestAxisMax(requestValues);
   return {
     responsive: true,
@@ -388,8 +390,9 @@ function buildThroughputOptions(
         backgroundColor: tooltipBg,
         titleColor: tooltipText,
         bodyColor: tooltipText,
-        borderColor: isDark ? 'rgba(255, 255, 255, 0.10)' : 'rgba(17, 24, 39, 0.10)',
-        borderWidth: 1,
+        borderColor: tooltipBg,
+        borderWidth: 0,
+        cornerRadius: 6,
         padding: 10,
         displayColors: true,
         callbacks: {

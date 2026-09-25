@@ -6,7 +6,7 @@ import type { Chart, ChartData, ChartOptions, InteractionItem, InteractionModeFu
 import { Bar, Doughnut, Scatter } from 'react-chartjs-2';
 import type { AnalysisCompositionItem, AnalysisCostBreakdown, AnalysisHeatmapCell, AnalysisLatencyDiagnostics, AnalysisModelEfficiencyItem, AnalysisModelUsagePayload, AnalysisResponse, AnalysisTokenUsageBucket } from '@/lib/types';
 import { calculateDisplayInputTokens, calculateDisplayOutputTokens, formatCompactNumber, formatDurationMs, formatUsd } from '@/utils/usage';
-import { buildUsageChartTooltipStyle, getUsageChartTheme, toUsageChartGradientFill as toGradientFill, USAGE_CHART_REQUESTS_LINE_COLOR, USAGE_CHART_COMPOSITION_COLORS as CHART_COLORS, USAGE_CHART_TOKEN_COLORS as TOKEN_COLORS, type UsageChartGradientColor, type UsageChartTheme } from '@/utils/usage/chartConfig';
+import { buildUsageChartTooltipStyle, getUsageChartTheme, resolveUsageChartColor, toUsageChartGradientFill as toGradientFill, USAGE_CHART_REQUESTS_LINE_COLOR, USAGE_CHART_COMPOSITION_COLORS as CHART_COLORS, USAGE_CHART_TOKEN_COLORS as TOKEN_COLORS, type UsageChartGradientColor, type UsageChartTheme } from '@/utils/usage/chartConfig';
 import { createCompositionLabelsPlugin } from './compositionLabels';
 import { compositionGeometryPlugin } from './compositionGeometry';
 import { AnalysisRankingList, getAnalysisRankingColor, useAnalysisHighlight, type AnalysisRankingItem } from './analysisRanking';
@@ -137,37 +137,37 @@ declare module 'chart.js' {
 }
 
 const TOP_MODEL_COLORS: GradientColor[] = [
-  { base: '#db2777', light: '#f9a8d4' },
-  { base: '#d97706', light: '#fcd34d' },
-  { base: '#059669', light: '#6ee7b7' },
-  { base: '#2563eb', light: '#93c5fd' },
-  { base: '#dc2626', light: '#fca5a5' },
+  { base: '#000000', light: '#000000' },
+  { base: '#666666', light: '#666666' },
+  { base: '#a8a8a8', light: '#a8a8a8' },
+  { base: '#3d3d3d', light: '#3d3d3d' },
+  { base: '#c7c7c7', light: '#c7c7c7' },
 ];
 const TOP_MODELS_MIN_SEGMENT_PX = 4;
 const TOP_MODELS_SCALE_HEADROOM_RATIO = 1.12;
 const LATENCY_COLORS = {
   light: {
-    point: '#14b8a6',
-    pointFill: 'rgba(45, 212, 191, 0.62)',
-    p95TTFT: '#38bdf8',
-    p95Latency: '#fb7185',
+    point: '#000000',
+    pointFill: 'rgba(0, 0, 0, 0.28)',
+    p95TTFT: '#8f8f8f',
+    p95Latency: '#f5a524',
   },
   dark: {
-    point: '#5eead4',
-    pointFill: 'rgba(94, 234, 212, 0.72)',
-    p95TTFT: '#7dd3fc',
-    p95Latency: '#fda4af',
+    point: '#ededed',
+    pointFill: 'rgba(237, 237, 237, 0.32)',
+    p95TTFT: '#707070',
+    p95Latency: '#f5b544',
   },
 } satisfies Record<'light' | 'dark', LatencyThemeColors>;
 const MODEL_EFFICIENCY_COLORS: ModelEfficiencyColor[] = [
-  { base: '#5b7fb9', light: '#7898c8', dark: '#395a8d' },
-  { base: '#b46f68', light: '#c68b84', dark: '#864943' },
-  { base: '#6f9a7a', light: '#89b193', dark: '#4b7255' },
-  { base: '#b79257', light: '#c6a66d', dark: '#86652e' },
-  { base: '#8d79b5', light: '#a08cc4', dark: '#66518d' },
-  { base: '#5f9aa7', light: '#7aadb8', dark: '#3e737f' },
-  { base: '#b07194', light: '#c188a7', dark: '#854f6c' },
-  { base: '#8c9f61', light: '#a0b374', dark: '#62733d' },
+  { base: '#000000', light: '#000000', dark: '#000000' },
+  { base: '#666666', light: '#666666', dark: '#666666' },
+  { base: '#a8a8a8', light: '#a8a8a8', dark: '#a8a8a8' },
+  { base: '#3d3d3d', light: '#3d3d3d', dark: '#3d3d3d' },
+  { base: '#8f8f8f', light: '#8f8f8f', dark: '#8f8f8f' },
+  { base: '#c7c7c7', light: '#c7c7c7', dark: '#c7c7c7' },
+  { base: '#d4d4d4', light: '#d4d4d4', dark: '#d4d4d4' },
+  { base: '#e0e0e0', light: '#e0e0e0', dark: '#e0e0e0' },
 ];
 const COMPOSITION_DONUT_BORDER_RADIUS = 10;
 const COMPOSITION_DONUT_SPACING = 4;
@@ -550,8 +550,8 @@ const drawLatencyReferenceHover = (chart: Chart<'scatter'>, hover: LatencyRefere
     y = hover.y + gap;
   }
   y = getBoundedHoverPoint(y, chartArea.top + 4, chartArea.bottom - height - 4);
-  ctx.fillStyle = 'rgba(17, 24, 39, 0.94)';
-  ctx.strokeStyle = hover.color;
+  ctx.fillStyle = '#000000';
+  ctx.strokeStyle = '#000000';
   ctx.lineWidth = 1;
   ctx.fillRect(x, y, width, height);
   ctx.strokeRect(x, y, width, height);
@@ -652,15 +652,15 @@ const getHeatmapCellColor = (intensity: number, isDark: boolean) => {
   const stops: Array<{ at: number; color: [number, number, number] }> = [
     ...(isDark
       ? [
-        { at: 0, color: [58, 36, 48] },
-        { at: 0.46, color: [122, 47, 59] },
-        { at: 1, color: [239, 68, 68] },
+        { at: 0, color: [26, 26, 26] },
+        { at: 0.46, color: [112, 112, 112] },
+        { at: 1, color: [237, 237, 237] },
       ] satisfies Array<{ at: number; color: [number, number, number] }>
       : [
-        { at: 0, color: [255, 247, 237] },
-        { at: 0.34, color: [254, 215, 170] },
-        { at: 0.67, color: [251, 146, 60] },
-        { at: 1, color: [239, 68, 68] },
+        { at: 0, color: [250, 250, 250] },
+        { at: 0.34, color: [212, 212, 212] },
+        { at: 0.67, color: [128, 128, 128] },
+        { at: 1, color: [0, 0, 0] },
       ] satisfies Array<{ at: number; color: [number, number, number] }>),
   ];
   const upperIndex = stops.findIndex((stop) => clampedIntensity <= stop.at);
@@ -674,9 +674,9 @@ const getHeatmapCellColor = (intensity: number, isDark: boolean) => {
 const getHeatmapCellTextColor = (intensity: number, isDark: boolean) => {
   const clampedIntensity = Math.max(0, Math.min(1, intensity));
   if (!isDark) {
-    return clampedIntensity > 0.58 ? '#fff7ed' : '#431407';
+    return clampedIntensity > 0.58 ? '#ffffff' : '#000000';
   }
-  return clampedIntensity > 0.86 ? '#1c1208' : '#fff7ed';
+  return clampedIntensity > 0.62 ? '#000000' : '#ededed';
 };
 
 const getHeatmapVisualIntensity = (value: number, maxValue: number) => {
@@ -1142,7 +1142,7 @@ function buildCompositionChartOptions(chartTheme: ChartTheme, labels: Compositio
         position: 'analysisCompositionCursor',
         caretPadding: COMPOSITION_TOOLTIP_CARET_PADDING,
         backgroundColor: chartTheme.tooltipBg,
-        titleColor: chartTheme.textPrimary,
+        titleColor: chartTheme.tooltipTitle,
         bodyColor: chartTheme.tooltipBody,
         borderColor: chartTheme.tooltipBorder,
         borderWidth: 1,
@@ -1218,7 +1218,7 @@ function TokenUsageChart({ rows, breakdown, loading, isDark, isMobile }: { rows:
           <div className={styles.analysisChartLegend} aria-label="Token chart legend">
             {legendItems.map((item) => (
               <div key={item.label} className={styles.analysisLegendItem} title={item.label}>
-                <span className={styles.analysisLegendDot} style={{ backgroundColor: item.color }} />
+                <span className={styles.analysisLegendDot} style={{ backgroundColor: resolveUsageChartColor(item.color, isDark) }} />
                 <span className={styles.analysisLegendLabel}>{item.label}</span>
               </div>
             ))}
@@ -1358,7 +1358,7 @@ function buildLatencyDiagnosticsChartOptions({
     legend: { display: false },
     tooltip: {
       backgroundColor: chartTheme.tooltipBg,
-      titleColor: chartTheme.textPrimary,
+      titleColor: chartTheme.tooltipTitle,
       bodyColor: chartTheme.tooltipBody,
       borderColor: chartTheme.tooltipBorder,
       borderWidth: 1,
@@ -1752,7 +1752,7 @@ function ModelEfficiencyCard({ rows, loading, isDark, isMobile }: { rows: Analys
         enabled: false,
         external: createModelEfficiencyTooltipHandler({ rows: pricedRows, labels: tooltipLabels }),
         backgroundColor: chartTheme.tooltipBg,
-        titleColor: chartTheme.textPrimary,
+        titleColor: chartTheme.tooltipTitle,
         bodyColor: chartTheme.tooltipBody,
         borderColor: chartTheme.tooltipBorder,
         borderWidth: 1,
