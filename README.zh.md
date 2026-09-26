@@ -25,6 +25,26 @@
   <a href="./LICENSE"><img src="https://img.shields.io/github/license/Willxup/cpa-usage-keeper?style=flat-square" alt="MIT License" /></a>
 </p>
 
+> [!NOTE]
+> **Geist UI 分支。** 本仓库 [jsllxx77/cpa-usage-keeper](https://github.com/jsllxx77/cpa-usage-keeper) fork 自 [Willxup/cpa-usage-keeper](https://github.com/Willxup/cpa-usage-keeper)，只对前端做了改造，采用 Vercel **Geist** 设计风格：黑白灰配色、细边框，图表使用 Geist 强调色，浅色和深色主题都已适配。后端、API 与数据库均与上游一致，本文其余内容照常适用。
+>
+> - 镜像：`ghcr.io/jsllxx77/cpa-usage-keeper:latest`（`linux/amd64`、`linux/arm64`）
+> - 发布：[jsllxx77/cpa-usage-keeper/releases](https://github.com/jsllxx77/cpa-usage-keeper/releases)，版本号格式为 `v<上游版本>-geist.<n>`
+> - **从上游镜像切换：** 只改 `image:` 一行，`/data` 挂载与 `.env` 保持不变。数据、设置和登录状态都会保留，改回上游镜像也同样简单。
+> - 内置的“检查更新”无法比较 `-geist` 版本，请在 GitHub 上使用 **Watch → Custom → Releases** 接收新版本通知。
+> - Homebrew 与下方徽章指向上游仓库。
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./assets/screenshots/geist/overview-dark.png" />
+    <img src="./assets/screenshots/geist/overview-light.png" alt="Geist UI 概览" width="49%" />
+  </picture>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./assets/screenshots/geist/analysis-dark.png" />
+    <img src="./assets/screenshots/geist/analysis-light.png" alt="Geist UI 分析" width="49%" />
+  </picture>
+</p>
+
 CPA Usage Keeper 是面向 [CLIProxyAPI（CPA）](https://github.com/router-for-me/CLIProxyAPI) 的独立用量持久化与分析面板。它将 CPA 用量保存到 SQLite，自动拉取 CPA 配置和凭证数据，并提供用量、成本、请求健康、限额及模型/API 统计。
 
 ## 界面预览
@@ -203,7 +223,7 @@ services:
       - cpa-network
 
   cpa-usage-keeper:
-    image: ghcr.io/willxup/cpa-usage-keeper:latest
+    image: ghcr.io/jsllxx77/cpa-usage-keeper:latest
     container_name: cpa-usage-keeper
     restart: unless-stopped
     depends_on:
@@ -271,7 +291,7 @@ docker run -d \
   -p 8080:8080 \
   -v "$(pwd)/keeper:/data" \
   --env-file .env \
-  ghcr.io/willxup/cpa-usage-keeper:latest
+  ghcr.io/jsllxx77/cpa-usage-keeper:latest
 ```
 
 ### macOS Homebrew

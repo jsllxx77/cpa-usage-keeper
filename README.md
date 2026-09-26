@@ -25,6 +25,26 @@
   <a href="./LICENSE"><img src="https://img.shields.io/github/license/Willxup/cpa-usage-keeper?style=flat-square" alt="MIT License" /></a>
 </p>
 
+> [!NOTE]
+> **Geist UI fork.** This is [jsllxx77/cpa-usage-keeper](https://github.com/jsllxx77/cpa-usage-keeper), a fork of [Willxup/cpa-usage-keeper](https://github.com/Willxup/cpa-usage-keeper) that only restyles the frontend with Vercel's **Geist** design system: a black, white and gray layout with thin borders, and Geist accent colors on charts. Light and dark themes are both included. The backend, API and database are identical to upstream, so everything else in this README applies unchanged.
+>
+> - Image: `ghcr.io/jsllxx77/cpa-usage-keeper:latest` (`linux/amd64`, `linux/arm64`)
+> - Releases: [jsllxx77/cpa-usage-keeper/releases](https://github.com/jsllxx77/cpa-usage-keeper/releases), tagged `v<upstream>-geist.<n>`
+> - **Switching from the upstream image:** replace only the `image:` line and keep the same `/data` volume and `.env`. Data, settings and login sessions carry over, and you can switch back the same way.
+> - The in-app update check can't compare `-geist` versions. Use GitHub **Watch → Custom → Releases** to get notified.
+> - Homebrew and the badges below refer to upstream.
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./assets/screenshots/geist/overview-dark.png" />
+    <img src="./assets/screenshots/geist/overview-light.png" alt="Geist UI Overview" width="49%" />
+  </picture>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./assets/screenshots/geist/analysis-dark.png" />
+    <img src="./assets/screenshots/geist/analysis-light.png" alt="Geist UI Analysis" width="49%" />
+  </picture>
+</p>
+
 CPA Usage Keeper is a standalone persistence and analytics dashboard for [CLIProxyAPI (CPA)](https://github.com/router-for-me/CLIProxyAPI). It stores CPA usage in SQLite, pulls CPA configuration and credential data, and provides views for usage, cost, request health, quotas, and model/API statistics.
 
 ## Screenshots
@@ -203,7 +223,7 @@ services:
       - cpa-network
 
   cpa-usage-keeper:
-    image: ghcr.io/willxup/cpa-usage-keeper:latest
+    image: ghcr.io/jsllxx77/cpa-usage-keeper:latest
     container_name: cpa-usage-keeper
     restart: unless-stopped
     depends_on:
@@ -271,7 +291,7 @@ docker run -d \
   -p 8080:8080 \
   -v "$(pwd)/keeper:/data" \
   --env-file .env \
-  ghcr.io/willxup/cpa-usage-keeper:latest
+  ghcr.io/jsllxx77/cpa-usage-keeper:latest
 ```
 
 ### macOS Homebrew
