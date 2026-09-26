@@ -11,7 +11,7 @@ import usageStyles from '@/pages/UsagePage.module.scss';
 import styles from './RealtimeInsights.module.scss';
 
 const FAILURE_COLOR = { base: '#e5484d', light: '#e5484d' };
-const CACHE_RATE_COLOR = '#666666';
+const CACHE_RATE_COLOR = '#8e4ec6';
 const FAILURE_RATE_COLOR = '#f5a524';
 const ratio = (value: number, denominator: number) => denominator > 0 ? value / denominator * 100 : null;
 const percent = (value: number | null, fractionDigits = 1) => value === null ? '—' : `${value.toFixed(fractionDigits)}%`;

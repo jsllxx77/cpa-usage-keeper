@@ -5,8 +5,19 @@
 
 import type { ChartOptions } from 'chart.js';
 
-// Geist 灰阶图表色板：同一序列内按明度拉开层次，仅成功/警告/危险保留低饱和功能色。
-// 色值为浅色模式基准；深色模式经 resolveUsageChartColor 映射为同明度层级的反相灰阶。
+// Geist 图表色板：分类数据使用 Geist 700 级强调色（蓝/紫/青/琥珀/粉），纯色无渐变；
+// 参考线与辅助序列保持黑灰。灰阶值在深色模式经 resolveUsageChartColor 反相，强调色两种主题通用。
+export const GEIST_ACCENT = {
+  blue: '#0070f3',
+  purple: '#8e4ec6',
+  teal: '#12a594',
+  amber: '#f5a524',
+  pink: '#e93d82',
+  cyan: '#0ea5e9',
+  green: '#45a557',
+  red: '#e5484d',
+} as const;
+
 export const USAGE_CHART_REQUESTS_LINE_COLOR = '#000000';
 
 export interface UsageChartGradientColor {
@@ -17,28 +28,28 @@ export interface UsageChartGradientColor {
 const gray = (value: string): UsageChartGradientColor => ({ base: value, light: value });
 
 export const USAGE_CHART_COMPOSITION_COLORS: UsageChartGradientColor[] = [
-  gray('#000000'),
-  gray('#8f8f8f'),
-  gray('#3d3d3d'),
-  gray('#c7c7c7'),
-  gray('#666666'),
-  gray('#e0e0e0'),
+  gray(GEIST_ACCENT.blue),
+  gray(GEIST_ACCENT.purple),
+  gray(GEIST_ACCENT.teal),
+  gray(GEIST_ACCENT.amber),
+  gray(GEIST_ACCENT.pink),
+  gray(GEIST_ACCENT.cyan),
 ];
 export const USAGE_CHART_TOKEN_COLORS = {
-  input: gray('#000000'),
-  output: gray('#666666'),
-  cacheRead: gray('#a8a8a8'),
-  cacheWrite: gray('#d4d4d4'),
-  reasoning: gray('#3d3d3d'),
+  input: gray(GEIST_ACCENT.blue),
+  output: gray(GEIST_ACCENT.teal),
+  cacheRead: gray(GEIST_ACCENT.amber),
+  cacheWrite: gray(GEIST_ACCENT.pink),
+  reasoning: gray(GEIST_ACCENT.purple),
   requests: USAGE_CHART_REQUESTS_LINE_COLOR,
   cost: '#8f8f8f',
 };
 
 export const USAGE_CHART_REALTIME_COLORS = {
-  input: gray('#000000'),
-  output: gray('#45a557'),
-  cacheRead: gray('#a8a8a8'),
-  cacheWrite: gray('#d4d4d4'),
+  input: gray(GEIST_ACCENT.blue),
+  output: gray(GEIST_ACCENT.green),
+  cacheRead: gray(GEIST_ACCENT.amber),
+  cacheWrite: gray(GEIST_ACCENT.pink),
 } as const;
 
 // 深色画布上把黑色系映射为对应的浅色，保持同样的明度层级。

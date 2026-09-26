@@ -21,10 +21,18 @@ export function getAnalysisRankingColor(identity: string, index: number, palette
   if (palette[index]) return palette[index];
   let hash = 2166136261;
   for (const character of identity) hash = Math.imul(hash ^ character.codePointAt(0)!, 16777619);
-  // Geist：扩展色保持灰阶，按标识在 18%~82% 明度区间内稳定取值。
-  const level = 46 + ((hash >>> 0) % 164);
-  const gray = `#${level.toString(16).padStart(2, '0').repeat(3)}`;
-  return { base: gray, light: gray };
+  // 超出色板的条目按标识生成稳定色相，饱和度/明度对齐 Geist 700 级强调色，纯色无渐变。
+  const raw = (hash >>> 0) % 270;
+  const hue = raw < 60 ? raw : raw + 90;
+  const saturation = 0.62;
+  const lightness = 0.52;
+  const amplitude = saturation * Math.min(lightness, 1 - lightness);
+  const color = `#${[0, 8, 4].map((offset) => {
+    const channel = (offset + hue / 30) % 12;
+    const value = lightness - amplitude * Math.max(-1, Math.min(channel - 3, 9 - channel, 1));
+    return Math.round(value * 255).toString(16).padStart(2, '0');
+  }).join('')}`;
+  return { base: color, light: color };
 }
 
 export function useAnalysisHighlight(scope: string) {

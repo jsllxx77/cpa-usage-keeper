@@ -136,13 +136,7 @@ declare module 'chart.js' {
   }
 }
 
-const TOP_MODEL_COLORS: GradientColor[] = [
-  { base: '#000000', light: '#000000' },
-  { base: '#666666', light: '#666666' },
-  { base: '#a8a8a8', light: '#a8a8a8' },
-  { base: '#3d3d3d', light: '#3d3d3d' },
-  { base: '#c7c7c7', light: '#c7c7c7' },
-];
+const TOP_MODEL_COLORS: GradientColor[] = CHART_COLORS;
 const TOP_MODELS_MIN_SEGMENT_PX = 4;
 const TOP_MODELS_SCALE_HEADROOM_RATIO = 1.12;
 const LATENCY_COLORS = {
@@ -160,14 +154,9 @@ const LATENCY_COLORS = {
   },
 } satisfies Record<'light' | 'dark', LatencyThemeColors>;
 const MODEL_EFFICIENCY_COLORS: ModelEfficiencyColor[] = [
-  { base: '#000000', light: '#000000', dark: '#000000' },
-  { base: '#666666', light: '#666666', dark: '#666666' },
-  { base: '#a8a8a8', light: '#a8a8a8', dark: '#a8a8a8' },
-  { base: '#3d3d3d', light: '#3d3d3d', dark: '#3d3d3d' },
+  ...CHART_COLORS.map(({ base }) => ({ base, light: base, dark: base })),
+  { base: '#45a557', light: '#45a557', dark: '#45a557' },
   { base: '#8f8f8f', light: '#8f8f8f', dark: '#8f8f8f' },
-  { base: '#c7c7c7', light: '#c7c7c7', dark: '#c7c7c7' },
-  { base: '#d4d4d4', light: '#d4d4d4', dark: '#d4d4d4' },
-  { base: '#e0e0e0', light: '#e0e0e0', dark: '#e0e0e0' },
 ];
 const COMPOSITION_DONUT_BORDER_RADIUS = 10;
 const COMPOSITION_DONUT_SPACING = 4;
@@ -652,15 +641,15 @@ const getHeatmapCellColor = (intensity: number, isDark: boolean) => {
   const stops: Array<{ at: number; color: [number, number, number] }> = [
     ...(isDark
       ? [
-        { at: 0, color: [26, 26, 26] },
-        { at: 0.46, color: [112, 112, 112] },
-        { at: 1, color: [237, 237, 237] },
+        { at: 0, color: [10, 26, 48] },
+        { at: 0.46, color: [0, 86, 189] },
+        { at: 1, color: [82, 168, 255] },
       ] satisfies Array<{ at: number; color: [number, number, number] }>
       : [
-        { at: 0, color: [250, 250, 250] },
-        { at: 0.34, color: [212, 212, 212] },
-        { at: 0.67, color: [128, 128, 128] },
-        { at: 1, color: [0, 0, 0] },
+        { at: 0, color: [240, 247, 255] },
+        { at: 0.34, color: [153, 202, 255] },
+        { at: 0.67, color: [82, 168, 255] },
+        { at: 1, color: [0, 95, 204] },
       ] satisfies Array<{ at: number; color: [number, number, number] }>),
   ];
   const upperIndex = stops.findIndex((stop) => clampedIntensity <= stop.at);
@@ -674,9 +663,9 @@ const getHeatmapCellColor = (intensity: number, isDark: boolean) => {
 const getHeatmapCellTextColor = (intensity: number, isDark: boolean) => {
   const clampedIntensity = Math.max(0, Math.min(1, intensity));
   if (!isDark) {
-    return clampedIntensity > 0.58 ? '#ffffff' : '#000000';
+    return clampedIntensity > 0.58 ? '#ffffff' : '#002040';
   }
-  return clampedIntensity > 0.62 ? '#000000' : '#ededed';
+  return clampedIntensity > 0.86 ? '#002040' : '#ededed';
 };
 
 const getHeatmapVisualIntensity = (value: number, maxValue: number) => {

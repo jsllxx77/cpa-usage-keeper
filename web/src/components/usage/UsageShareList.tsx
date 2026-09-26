@@ -1,4 +1,5 @@
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
+import { USAGE_CHART_COMPOSITION_COLORS } from '@/utils/usage/chartConfig';
 import { useTranslation } from 'react-i18next';
 import { formatCompactNumber, formatFixedTwoDecimals, formatUsd } from '@/utils/usage';
 import styles from '@/pages/UsagePage.module.scss';
@@ -29,7 +30,7 @@ export function UsageShareList({ items, loading, emptyContent }: { items: readon
     <div className={styles.overviewRealtimeUsageList} aria-busy={loading}>
       {items.length === 0 ? (
         <div className={styles.overviewRealtimeEmpty}>{emptyContent ?? t('usage_stats.overview_realtime_usage_empty')}</div>
-      ) : items.map((item) => {
+      ) : items.map((item, index) => {
         const share = item.share === null ? null : Number.isFinite(item.share) ? item.share : 0;
         return (
           <div key={item.key} className={styles.overviewRealtimeUsageItem} data-usage-share-item={item.key}>
@@ -39,7 +40,14 @@ export function UsageShareList({ items, loading, emptyContent }: { items: readon
             </div>
             <div className={styles.overviewRealtimeUsageTrack} aria-hidden="true">
               {share !== null && share > 0 && (
-                <span className={styles.overviewRealtimeUsageBar} style={{ width: `${Math.max(0, Math.min(100, share))}%` }} />
+                <span
+                  className={styles.overviewRealtimeUsageBar}
+                  style={{
+                    width: `${Math.max(0, Math.min(100, share))}%`,
+                    // 按条目顺序取 Geist 强调色，与同页图表的分类配色一致。
+                    '--usage-bar-color': USAGE_CHART_COMPOSITION_COLORS[index % USAGE_CHART_COMPOSITION_COLORS.length].base,
+                  } as CSSProperties}
+                />
               )}
             </div>
             <div className={styles.overviewRealtimeUsageMeta}>

@@ -71,13 +71,13 @@ const THROUGHPUT_Y_TICK_COUNT = 6;
 const THROUGHPUT_Y_INTERVAL_COUNT = THROUGHPUT_Y_TICK_COUNT - 1;
 const THROUGHPUT_LEGEND_BOTTOM_GAP = 10;
 
-// Geist 灰阶：主序列纯黑，次序列中灰；深色模式由 lib/chartjs 统一反相。
+// Geist 强调色：Token 蓝、请求中灰（辅助虚线）、TTFT 琥珀、延迟青、缓存紫。
 const CHART_COLORS = {
-  token: '#000000',
-  ttft: '#8f8f8f',
-  latency: '#000000',
+  token: '#0070f3',
+  ttft: '#f5a524',
+  latency: '#12a594',
   request: '#8f8f8f',
-  cache: '#666666',
+  cache: '#8e4ec6',
 } as const;
 
 const REALTIME_DURATION_UNITS = {

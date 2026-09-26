@@ -4123,7 +4123,7 @@
   inset: 0 auto 0 0;
   min-width: 3px;
   border-radius: inherit;
-  background: var(--text-primary);
+  background: var(--usage-bar-color, var(--text-primary));
 }
 
 .overviewRealtimeUsageMeta {
@@ -4176,20 +4176,22 @@
 }
 
 .tokenActivityCard {
-  --token-activity-level-1: #e0e0e0;
-  --token-activity-level-2: #b3b3b3;
-  --token-activity-level-3: #808080;
-  --token-activity-level-4: #4d4d4d;
-  --token-activity-level-5: #000000;
+  // Geist Blue 400→800
+  --token-activity-level-1: #cce4ff;
+  --token-activity-level-2: #99caff;
+  --token-activity-level-3: #52a8ff;
+  --token-activity-level-4: #0070f3;
+  --token-activity-level-5: #005fcc;
 }
 
 :global([data-theme='dark']) .tokenActivityCard {
   // 两种主题都用浅→深表示 Token 量增加；暗色背景下收窄亮度范围以保留辨识度。
-  --token-activity-level-1: #ededed;
-  --token-activity-level-2: #b3b3b3;
-  --token-activity-level-3: #8a8a8a;
-  --token-activity-level-4: #666666;
-  --token-activity-level-5: #474747;
+  // 暗色背景下由浅到深表示增量（与测试约定的亮度递减一致）。
+  --token-activity-level-1: #99caff;
+  --token-activity-level-2: #52a8ff;
+  --token-activity-level-3: #2e8fff;
+  --token-activity-level-4: #0070f3;
+  --token-activity-level-5: #0056bd;
 }
 
 .activityCardHeader {
@@ -4225,7 +4227,7 @@
 }
 
 .tokenActivitySummaryValue {
-  color: var(--text-primary);
+  color: #0070f3;
 }
 
 .activitySummaryDetails {

@@ -46,8 +46,8 @@ interface QuotaCycleSummary {
 type QuotaSummaryKind = 'used' | 'full-estimate' | 'median' | 'estimated-unused'
 
 const QUOTA_EFFICIENCY_BAR_COLORS = {
-  direct: { base: '#000000', light: '#000000' },
-  averaged: { base: '#a8a8a8', light: '#a8a8a8' },
+  direct: { base: '#0070f3', light: '#0070f3' },
+  averaged: { base: '#f5a524', light: '#f5a524' },
 } satisfies Record<'direct' | 'averaged', UsageChartGradientColor>
 
 const QUOTA_REMAINING_LINE_COLORS = {

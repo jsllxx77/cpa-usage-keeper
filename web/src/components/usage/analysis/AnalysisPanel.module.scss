@@ -753,12 +753,12 @@
   width: 120px;
   height: 10px;
   border-radius: 8px;
-  background: linear-gradient(90deg, #fafafa, #d4d4d4, #808080, #000000);
+  background: linear-gradient(90deg, #f0f7ff, #99caff, #52a8ff, #005fcc);
   box-shadow: inset 0 0 0 1px var(--border-color);
 }
 
 .heatmapCardDark .heatmapLegendRamp {
-  background: linear-gradient(90deg, #1a1a1a, #707070, #ededed);
+  background: linear-gradient(90deg, #0a1a30, #0056bd, #52a8ff);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.10);
 }
 
