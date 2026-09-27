@@ -45,9 +45,11 @@ const GEIST_LINE_WIDTH = 1.5;
 ChartJS.defaults.elements.line.borderWidth = GEIST_LINE_WIDTH;
 
 // 业务色板以浅色模式灰阶为基准；深色模式下把数据集颜色映射为对应的反相灰阶。
-// 原值保存在 WeakMap 中，保证多次 update 与主题来回切换都可重复计算。
+// react-chartjs-2 会复用 dataset 对象并 Object.assign 新属性，因此逐键记录“原值 / 上次写入值”：
+// 当前值 !== 上次写入值 说明业务侧改过颜色（如高亮），以当前值作为新的原值。
 const COLOR_KEYS = ['borderColor', 'backgroundColor', 'hoverBackgroundColor', 'pointBackgroundColor', 'pointBorderColor'] as const;
-const originalColors = new WeakMap<object, Partial<Record<(typeof COLOR_KEYS)[number], unknown>>>();
+type ColorKey = (typeof COLOR_KEYS)[number];
+const colorState = new WeakMap<object, Partial<Record<ColorKey, { original: unknown; written: unknown }>>>();
 
 const mapColor = (value: unknown, isDark: boolean): unknown => {
   if (typeof value === 'string') return resolveUsageChartColor(value, isDark);
@@ -67,13 +69,16 @@ ChartJS.register({
     const isDark = isDarkTheme();
     for (const dataset of chart.data.datasets) {
       const record = dataset as unknown as Record<string, unknown>;
-      let original = originalColors.get(dataset);
-      if (!original) {
-        original = {};
-        for (const key of COLOR_KEYS) if (key in record) original[key] = record[key];
-        originalColors.set(dataset, original);
+      let state = colorState.get(dataset);
+      if (!state) colorState.set(dataset, (state = {}));
+      for (const key of COLOR_KEYS) {
+        if (!(key in record)) continue;
+        const entry = state[key];
+        const original = entry && record[key] === entry.written ? entry.original : record[key];
+        const written = mapColor(original, isDark);
+        state[key] = { original, written };
+        record[key] = written;
       }
-      for (const key of COLOR_KEYS) if (key in original) record[key] = mapColor(original[key], isDark);
 
       const type = (dataset as { type?: string }).type ?? (chart.config as { type?: string }).type;
       if (type !== 'line') continue;
