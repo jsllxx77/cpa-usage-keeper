@@ -1,0 +1,8 @@
+# Pull app (https://github.com/wei/pull) config for this fork.
+# The default "hardreset" would force-reset main to upstream and wipe the Geist UI commits.
+# "none" keeps the PR as an update notification only; upstream releases are merged by hand (git merge v<tag>).
+version: "1"
+rules:
+  - base: main
+    upstream: Willxup:main
+    mergeMethod: none
