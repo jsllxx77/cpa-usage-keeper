@@ -38,6 +38,7 @@ type LatencyDiagnosticsPluginLabels = {
 };
 type LatencyThemeColors = {
   pointFill: string;
+  pointBorder?: string;
   p95TTFT: string;
   p95Latency: string;
 };
@@ -58,14 +59,16 @@ type LatencyPluginEventArgs = Parameters<NonNullable<Plugin<'scatter'>['afterEve
 
 const LATENCY_COLORS = {
   light: {
-    pointFill: 'rgba(0, 0, 0, 0.28)',
-    p95TTFT: '#8f8f8f',
-    p95Latency: '#f5a524',
+    pointFill: 'rgba(0, 112, 243, 0.65)',
+    pointBorder: 'rgba(0, 112, 243, 0.95)',
+    p95TTFT: '#f5a524',
+    p95Latency: '#f81ce5',
   },
   dark: {
-    pointFill: 'rgba(237, 237, 237, 0.32)',
-    p95TTFT: '#707070',
-    p95Latency: '#f5b544',
+    pointFill: 'rgba(0, 229, 255, 0.72)',
+    pointBorder: '#00e5ff',
+    p95TTFT: '#f5b544',
+    p95Latency: '#f81ce5',
   },
 } satisfies Record<'light' | 'dark', LatencyThemeColors>;
 const LATENCY_REFERENCE_HIT_RADIUS_PX = 8;
@@ -190,8 +193,8 @@ const drawLatencyReferenceHover = (chart: Chart<'scatter'>, hover: LatencyRefere
   }
   y = getBoundedHoverPoint(y, chartArea.top + 4, chartArea.bottom - height - 4);
   ctx.fillStyle = '#000000';
-  ctx.strokeStyle = '#000000';
-  ctx.lineWidth = 1;
+  ctx.strokeStyle = hover.color;
+  ctx.lineWidth = 1.5;
   ctx.fillRect(x, y, width, height);
   ctx.strokeRect(x, y, width, height);
   ctx.fillStyle = '#ffffff';
@@ -284,7 +287,12 @@ function* getLatencyAxisValues(diagnostics: LatencyScatterData, axis: 'ttft' | '
   }
 }
 
-function buildLatencyDiagnosticsChartData(diagnostics: LatencyScatterData, label: string, colors: LatencyThemeColors): ChartData<'scatter', LatencyScatterPoint[], string> {
+function buildLatencyDiagnosticsChartData(
+  diagnostics: LatencyScatterData,
+  label: string,
+  colors: LatencyThemeColors,
+  isMobile: boolean,
+): ChartData<'scatter', LatencyScatterPoint[], string> {
   return {
     labels: diagnostics.points.map((point) => `${point.ttft_ms}/${point.latency_ms}`),
     datasets: [{
@@ -293,12 +301,13 @@ function buildLatencyDiagnosticsChartData(diagnostics: LatencyScatterData, label
         x: toNumber(point.ttft_ms),
         y: toNumber(point.latency_ms),
       })),
-      pointRadius: 3,
-      pointHoverRadius: 5,
+      pointRadius: isMobile ? 3.5 : 4,
+      pointHoverRadius: 6.5,
       pointBackgroundColor: colors.pointFill,
-      pointBorderColor: 'transparent',
-      pointBorderWidth: 0,
-      pointHoverBorderWidth: 0,
+      pointBorderColor: colors.pointBorder ?? 'transparent',
+      pointBorderWidth: colors.pointBorder ? 1 : 0,
+      pointHoverBorderWidth: 2,
+      pointHoverBackgroundColor: colors.pointBorder ?? colors.pointFill,
       borderColor: 'transparent',
       borderWidth: 0,
       showLine: false,
@@ -391,7 +400,7 @@ export function LatencyScatterChart({ diagnostics, isDark, isMobile, labels, for
 }) {
   const chartTheme = useMemo(() => getUsageChartTheme(isDark), [isDark]);
   const colors = useMemo(() => getLatencyColors(isDark), [isDark]);
-  const chartData = useMemo(() => buildLatencyDiagnosticsChartData(diagnostics, labels.samples, colors), [diagnostics, labels.samples, colors]);
+  const chartData = useMemo(() => buildLatencyDiagnosticsChartData(diagnostics, labels.samples, colors, isMobile), [diagnostics, labels.samples, colors, isMobile]);
   const chartOptions = useMemo(() => buildLatencyDiagnosticsChartOptions({ diagnostics, chartTheme, isMobile, labels, colors, formatDuration }), [diagnostics, chartTheme, isMobile, labels, colors, formatDuration]);
   const plugin = useMemo(() => createLatencyDiagnosticsPlugin(formatDuration), [formatDuration]);
   return <Scatter data={chartData} options={chartOptions} plugins={[plugin]} />;

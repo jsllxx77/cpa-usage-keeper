@@ -1215,7 +1215,38 @@
 @include mobile {
   .primaryStatSlot {
     .statValue {
-      font-size: 28px;
+      font-size: 26px;
+      flex-shrink: 0;
+      min-width: max-content;
+    }
+
+    .statTrend {
+      flex: 0 1 100px;
+      min-width: 56px;
+      height: 44px;
+    }
+  }
+
+  .statValueLine {
+    gap: 10px;
+
+    > .statValue {
+      flex: 1 0 auto;
+      min-width: 0;
+      white-space: nowrap;
+    }
+  }
+}
+
+@media (max-width: 360px) {
+  .primaryStatSlot {
+    .statValue {
+      font-size: 23px;
+    }
+
+    .statTrend {
+      flex: 0 1 80px;
+      min-width: 48px;
     }
   }
 }
