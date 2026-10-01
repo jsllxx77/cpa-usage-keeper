@@ -1216,24 +1216,12 @@
   .primaryStatSlot {
     .statValue {
       font-size: 26px;
-      flex-shrink: 0;
-      min-width: max-content;
     }
 
     .statTrend {
       flex: 0 1 100px;
       min-width: 56px;
       height: 44px;
-    }
-  }
-
-  .statValueLine {
-    gap: 10px;
-
-    > .statValue {
-      flex: 1 0 auto;
-      min-width: 0;
-      white-space: nowrap;
     }
   }
 }
@@ -1387,6 +1375,16 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  // 移动端数值不参与收缩，由右侧 Sparkline 让出空间，避免总 Token 等数字被截断。
+  // 需写在基础规则之后：同等特异性下靠后的声明生效。
+  @include mobile {
+    gap: 10px;
+
+    > .statValue {
+      flex: 1 0 auto;
+    }
   }
 }
 
