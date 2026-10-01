@@ -241,7 +241,7 @@ curl -fL https://raw.githubusercontent.com/router-for-me/CLIProxyAPI/main/config
 在同一目录下载 [CPA + Keeper 联合部署模板](./deploy/docker-compose.full.example.yml)：
 
 ```bash
-curl -fL https://raw.githubusercontent.com/Willxup/cpa-usage-keeper/main/deploy/docker-compose.full.example.yml \
+curl -fL https://raw.githubusercontent.com/jsllxx77/cpa-usage-keeper/main/deploy/docker-compose.full.example.yml \
   -o docker-compose.yml
 ```
 
@@ -286,9 +286,9 @@ CPA 数据保存在 `./cpa`，Keeper 数据保存在 `./keeper`。
 CPA 已经部署好时，在新的部署目录中下载 Keeper-only Compose 模板和环境配置：
 
 ```bash
-curl -fL https://raw.githubusercontent.com/Willxup/cpa-usage-keeper/main/deploy/docker-compose.example.yml \
+curl -fL https://raw.githubusercontent.com/jsllxx77/cpa-usage-keeper/main/deploy/docker-compose.example.yml \
   -o docker-compose.yml
-curl -fL https://raw.githubusercontent.com/Willxup/cpa-usage-keeper/main/.env.example -o .env
+curl -fL https://raw.githubusercontent.com/jsllxx77/cpa-usage-keeper/main/.env.example -o .env
 vim .env
 ```
 

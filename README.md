@@ -241,7 +241,7 @@ curl -fL https://raw.githubusercontent.com/router-for-me/CLIProxyAPI/main/config
 In the same directory, download the [CPA + Keeper Compose template](./deploy/docker-compose.full.example.yml):
 
 ```bash
-curl -fL https://raw.githubusercontent.com/Willxup/cpa-usage-keeper/main/deploy/docker-compose.full.example.yml \
+curl -fL https://raw.githubusercontent.com/jsllxx77/cpa-usage-keeper/main/deploy/docker-compose.full.example.yml \
   -o docker-compose.yml
 ```
 
@@ -286,9 +286,9 @@ CPA data is stored under `./cpa`, and Keeper data is stored under `./keeper`.
 When CPA is already deployed, download the Keeper-only Compose template and environment configuration into a new deployment directory:
 
 ```bash
-curl -fL https://raw.githubusercontent.com/Willxup/cpa-usage-keeper/main/deploy/docker-compose.example.yml \
+curl -fL https://raw.githubusercontent.com/jsllxx77/cpa-usage-keeper/main/deploy/docker-compose.example.yml \
   -o docker-compose.yml
-curl -fL https://raw.githubusercontent.com/Willxup/cpa-usage-keeper/main/.env.example -o .env
+curl -fL https://raw.githubusercontent.com/jsllxx77/cpa-usage-keeper/main/.env.example -o .env
 vim .env
 ```
 
