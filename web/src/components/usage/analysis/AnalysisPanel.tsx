@@ -111,7 +111,6 @@ declare module 'chart.js' {
 const TOP_MODEL_COLORS: GradientColor[] = CHART_COLORS;
 const TOP_MODELS_MIN_SEGMENT_PX = 4;
 const TOP_MODELS_SCALE_HEADROOM_RATIO = 1.12;
-
 const MODEL_EFFICIENCY_COLORS: ModelEfficiencyColor[] = [
   ...CHART_COLORS.map(({ base }) => ({ base, light: base, dark: base })),
   { base: '#45a557', light: '#45a557', dark: '#45a557' },
@@ -377,7 +376,6 @@ const modelEfficiencyTooltipPointerPlugin: Plugin<'scatter'> = {
 
 const getChartTheme = getUsageChartTheme;
 const buildAnalysisBarTooltipStyle = buildUsageChartTooltipStyle;
-
 
 const toNumber = (value: unknown) => {
   const parsed = Number(value);
@@ -1044,7 +1042,6 @@ const emptyLatencyDiagnostics = (): AnalysisLatencyDiagnostics => ({
   max_ttft_ms: 0,
   max_latency_ms: 0,
 });
-
 
 function LatencyDiagnosticsCard({ diagnostics, loading, error, isDark, isMobile }: { diagnostics: AnalysisLatencyDiagnostics | null | undefined; loading: boolean; error: string; isDark: boolean; isMobile: boolean }) {
   const { t } = useTranslation();

@@ -337,7 +337,7 @@ function buildLatencyDiagnosticsChartOptions({
     legend: { display: false },
     tooltip: {
       backgroundColor: chartTheme.tooltipBg,
-      titleColor: chartTheme.textPrimary,
+      titleColor: chartTheme.tooltipTitle,
       bodyColor: chartTheme.tooltipBody,
       borderColor: chartTheme.tooltipBorder,
       borderWidth: 1,

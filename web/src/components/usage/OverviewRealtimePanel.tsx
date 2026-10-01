@@ -251,7 +251,6 @@ const metricChips = (
   ];
 };
 
-
 function buildThroughputOptions(
   isDark: boolean,
   isMobile: boolean,
