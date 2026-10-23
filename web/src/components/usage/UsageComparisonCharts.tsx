@@ -1,3 +1,4 @@
+import { disambiguateTimeLabels } from '@/utils/usage/timeLabels';
 import { useEffect, useId, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import '@/lib/chartjs';
@@ -17,8 +18,8 @@ const EMPTY: UsageComparisonItem[] = [];
 const EMPTY_BUCKETS: string[] = [];
 // Geist 强调色（与其它分布图共用），第 6 位固定为“其它”的中性灰。
 const COLORS = [...USAGE_CHART_COMPOSITION_COLORS.slice(0, 5).map((color) => color.base), '#a1a1a1'];
-type UsageDimension = 'models' | 'api_keys' | 'auth_files' | 'ai_providers';
-const DIMENSIONS: readonly UsageDimension[] = ['models', 'api_keys', 'auth_files', 'ai_providers'];
+type UsageDimension = 'models' | 'api_keys' | 'credentials' | 'ai_providers';
+const DIMENSIONS: readonly UsageDimension[] = ['models', 'api_keys', 'credentials', 'ai_providers'];
 const colorFor = (row: ComparisonRow, index: number) => COLORS[row.other ? 5 : index];
 const formatShare = (value: number | null) => value === null ? '—' : `${value.toFixed(1)}%`;
 const formatCost = (value: number | null) => value === null ? '—' : formatUsd(value);
@@ -36,7 +37,7 @@ export function UsageComparisonCharts({ comparisons, loading, keyViewer = false,
   const { t } = useTranslation();
   const headingId = useId();
   const [selected, setSelected] = useState<UsageDimension>('models');
-  const dimension = keyViewer && (selected === 'auth_files' || selected === 'ai_providers') ? 'models' : selected;
+  const dimension = keyViewer && (selected === 'credentials' || selected === 'ai_providers') ? 'models' : selected;
   const dimensions = keyViewer ? DIMENSIONS.slice(0, 2) : DIMENSIONS;
   const items = comparisons?.[dimension] ?? EMPTY;
   const total = items.reduce((sum, item) => sum + item.total_tokens, 0);
@@ -67,8 +68,8 @@ function ComparisonArea({ dimension, comparisons, loading, isDark, isMobile }: C
   const buckets = comparisons?.buckets ?? EMPTY_BUCKETS;
   const view = useMemo(() => buildComparisonView(items, t('usage_stats.comparison_others')), [items, t]);
   const granularity = comparisons?.granularity ?? 'hourly';
-  const labels = useMemo(() => buckets.map(bucket => formatComparisonBucket(bucket, granularity, comparisons?.timezone, i18n.language)), [buckets, granularity, comparisons?.timezone, i18n.language]);
-  const fullLabels = useMemo(() => buckets.map(bucket => formatComparisonBucket(bucket, granularity, comparisons?.timezone, i18n.language, true)), [buckets, granularity, comparisons?.timezone, i18n.language]);
+  const labels = useMemo(() => disambiguateTimeLabels(buckets, comparisons?.timezone, bucket => formatComparisonBucket(bucket, granularity, comparisons?.timezone, i18n.language)), [buckets, granularity, comparisons?.timezone, i18n.language]);
+  const fullLabels = useMemo(() => disambiguateTimeLabels(buckets, comparisons?.timezone, bucket => formatComparisonBucket(bucket, granularity, comparisons?.timezone, i18n.language, true)), [buckets, granularity, comparisons?.timezone, i18n.language]);
   const [hidden, setHidden] = useState<Set<string>>(() => new Set());
   const chartRef = useRef<ChartJS<'line'>>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);

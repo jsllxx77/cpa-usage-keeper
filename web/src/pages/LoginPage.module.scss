@@ -2,6 +2,8 @@
 @use '../styles/mixins' as *;
 
 .pageShell {
+  --login-form-gap: 18px;
+
   flex: 1 1 auto;
   min-height: 0;
   display: flex;
@@ -145,6 +147,11 @@
   }
 }
 
+.loginCardOIDCSpace {
+  // API Key 页签把 OIDC 按钮的空间留在卡片外，保留居中位置与卡片本身的高度。
+  margin-bottom: calc(var(--keeper-control-height-md) + var(--login-form-gap));
+}
+
 .cardHeader {
   display: flex;
   flex-direction: column;
@@ -212,7 +219,7 @@
   flex: 0 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: var(--login-form-gap);
 
   :global(.input::placeholder) {
     font-size: 12px;
@@ -224,4 +231,9 @@
     font-size: 12px;
     line-height: 1.45;
   }
+}
+
+.form :global(.btn) {
+  // fork: Geist 按钮保持 6px 圆角，不用上游 pill
+  border-radius: 6px;
 }

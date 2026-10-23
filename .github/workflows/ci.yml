@@ -20,7 +20,7 @@ concurrency:
 
 jobs:
   changes:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 5
     outputs:
       backend: ${{ (github.event_name == 'workflow_dispatch' || inputs.full) && 'true' || steps.filter.outputs.backend }}
@@ -53,6 +53,7 @@ jobs:
               - '.github/workflows/ci.yml'
             frontend:
               - 'web/**'
+              - '.nvmrc'
               - 'README.md'
               - 'README.zh.md'
               - 'assets/keeper-logo-light.svg'
@@ -62,6 +63,7 @@ jobs:
             container:
               - 'Dockerfile'
               - '.dockerignore'
+              - '.nvmrc'
               - 'docker-entrypoint.sh'
               - 'go.mod'
               - 'go.sum'
@@ -80,6 +82,7 @@ jobs:
               - '!web/**'
               - '!Dockerfile'
               - '!.dockerignore'
+              - '!.nvmrc'
               - '!docker-entrypoint.sh'
               - '!go.mod'
               - '!go.sum'
@@ -106,7 +109,7 @@ jobs:
       fail-fast: false
       matrix:
         runs-on:
-          - ubuntu-latest
+          - ubuntu-26.04
           - macos-latest
           - windows-latest
     steps:
@@ -141,7 +144,7 @@ jobs:
   frontend:
     needs: changes
     if: ${{ needs.changes.outputs.frontend == 'true' || needs.changes.outputs.other == 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 15
     steps:
       - name: Checkout repository
@@ -150,7 +153,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '24'
+          node-version-file: .nvmrc
           cache: npm
           cache-dependency-path: web/package-lock.json
 
@@ -172,7 +175,7 @@ jobs:
   container:
     needs: changes
     if: ${{ needs.changes.outputs.container == 'true' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 20
     steps:
       - name: Checkout repository
@@ -188,7 +191,7 @@ jobs:
       - backend
       - frontend
       - container
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 5
     steps:
       - name: Verify CI results
