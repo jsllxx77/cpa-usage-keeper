@@ -99,7 +99,7 @@ jobs:
           - goos: darwin
             goarch: arm64
             asset_arch: arm64
-            runs_on: macos-15
+            runs_on: macos-15-intel
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
