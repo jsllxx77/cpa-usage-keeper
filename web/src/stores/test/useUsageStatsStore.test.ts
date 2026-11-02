@@ -159,6 +159,30 @@ describe('useUsageStatsStore', () => {
     expect(freshLoaded).toHaveBeenCalledExactlyOnceWith(freshValue)
   })
 
+  it.each(['overview', 'realtime'] as const)('reuses an in-flight %s auto refresh but still replaces it for a different query', async (kind) => {
+    const pending = Promise.withResolvers<unknown>()
+    const fresh = Promise.withResolvers<unknown>()
+    const request = kind === 'overview' ? apiMocks.fetchUsageOverview : apiMocks.fetchUsageOverviewRealtime
+    request.mockReturnValueOnce(pending.promise).mockReturnValueOnce(fresh.promise)
+    const load = (apiKeyId: string, skipIfInFlight = false) => kind === 'overview'
+      ? useUsageStatsStore.getState().loadUsageStats({ apiKeyId, range: '24h', force: true, skipIfInFlight })
+      : useUsageStatsStore.getState().loadUsageStatsRealtime({ apiKeyId, realtimeWindow: '15m', force: true, skipIfInFlight })
+    const initial = load('11')
+    const signal = (kind === 'overview' ? request.mock.calls[0][1] : request.mock.calls[0][0].signal) as AbortSignal
+    const automatic = load('11', true)
+    expect(request).toHaveBeenCalledTimes(1)
+    expect(signal.aborted).toBe(false)
+    const changed = load('22', true)
+    expect(request).toHaveBeenCalledTimes(2)
+    expect(signal.aborted).toBe(true)
+    fresh.resolve(kind === 'overview' ? { usage: { total_requests: 22 } } : { ...realtime, bucket_seconds: 60 })
+    await changed
+    pending.resolve(kind === 'overview' ? { usage: { total_requests: 11 } } : realtime)
+    await Promise.all([initial, automatic])
+    expect(kind === 'overview' ? useUsageStatsStore.getState().usage?.usage.total_requests : useUsageStatsStore.getState().realtime?.bucket_seconds)
+      .toBe(kind === 'overview' ? 22 : 60)
+  })
+
   it('signals a committed successful response but never signals a handled request failure', async () => {
     const onLoaded = vi.fn()
     apiMocks.fetchUsageOverviewRealtime.mockResolvedValueOnce(realtime).mockRejectedValueOnce(new Error('failed'))

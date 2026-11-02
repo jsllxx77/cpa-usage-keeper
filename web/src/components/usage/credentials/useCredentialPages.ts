@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { ApiError, fetchUsageIdentitiesPage, resetUsageIdentityStats, type UsageIdentityPageSort } from '@/lib/api'
 import type { UsageIdentity, UsageIdentityTypeCount } from '@/lib/types'
 import { stripAppBasePath } from '@/lib/usageNavigation'
+import { safeStorageGetItem, safeStorageSetItem } from '@/utils/safeStorage'
 import { credentialProviderFilterTypes, resolveCredentialProviderFilterFromSearch, type CredentialProviderFilterKey } from './credentialProviderFilters'
 import { loadCredentialListPreferences, persistCredentialListPreferences } from './credentialListPreferences'
 
@@ -24,15 +25,13 @@ export function mergeUsageIdentityAliasUpdate(current: UsageIdentity, updated: U
   }
 }
 
-const getInitialCredentialActiveOnly = () => {
-  if (typeof window === 'undefined') return false
-  return window.localStorage.getItem(CREDENTIAL_ACTIVE_ONLY_STORAGE_KEY) === 'true'
-}
+const getInitialCredentialActiveOnly = () => (
+  safeStorageGetItem(CREDENTIAL_ACTIVE_ONLY_STORAGE_KEY) === 'true'
+)
 
-const getInitialAiProviderActiveOnly = () => {
-  if (typeof window === 'undefined') return false
-  return window.localStorage.getItem(AI_PROVIDER_ACTIVE_ONLY_STORAGE_KEY) === 'true'
-}
+const getInitialAiProviderActiveOnly = () => (
+  safeStorageGetItem(AI_PROVIDER_ACTIVE_ONLY_STORAGE_KEY) === 'true'
+)
 
 const getInitialListPreferences = () => {
   const credential = loadCredentialListPreferences('credentials')
@@ -126,16 +125,12 @@ export function useCredentialPages({ enabledCredentials, enabledAiProviders, onA
   const setCredentialActiveOnly = useCallback((activeOnly: boolean) => {
     setCredentialPage(1)
     setCredentialActiveOnlyState(activeOnly)
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem(CREDENTIAL_ACTIVE_ONLY_STORAGE_KEY, String(activeOnly))
-    }
+    safeStorageSetItem(CREDENTIAL_ACTIVE_ONLY_STORAGE_KEY, String(activeOnly))
   }, [])
   const setAiProviderActiveOnly = useCallback((activeOnly: boolean) => {
     setAiProviderPage(1)
     setAiProviderActiveOnlyState(activeOnly)
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem(AI_PROVIDER_ACTIVE_ONLY_STORAGE_KEY, String(activeOnly))
-    }
+    safeStorageSetItem(AI_PROVIDER_ACTIVE_ONLY_STORAGE_KEY, String(activeOnly))
   }, [])
   const setCredentialProviderFilter = useCallback((filter: CredentialProviderFilterKey) => {
     setCredentialPage(1)

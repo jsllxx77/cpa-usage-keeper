@@ -4,7 +4,7 @@ import { UsageComparisonCharts } from '@/components/usage/UsageComparisonCharts'
 import type { ModelSpeedRefreshSignal } from '@/components/usage/model-speed/modelSpeedAnimation';
 import { useState, useMemo, useCallback, useEffect, useRef, type MouseEvent as ReactMouseEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ApiError, appPath, createUsageEventRequestLogDownloadURL, exportUsageEvents, fetchAnalysis, fetchAnalysisLatency, fetchAuthSessions, fetchCpaApiKeyOptions, fetchCpaApiKeySettings, fetchStatus, fetchUpdateCheck, fetchUsageEventModelFilterOptions, fetchUsageEventRequestLog, fetchUsageEventSourceFilterOptions, fetchUsageEvents, fetchUsageIdentity, fetchVersion, isCostsBusy, isUsageRangeBoundsConflict, logout, revokeAuthSession, updateAuthSessionAlias, updateCpaApiKeyAlias, type UsageEventsExportFormat, type CpaApiKeyOptionsRequest } from '@/lib/api';
+import { ApiError, appPath, createUsageEventRequestLogDownloadURL, exportUsageEvents, fetchAnalysis, fetchAnalysisLatency, fetchAuthSessions, fetchCpaApiKeyOptions, fetchCpaApiKeySettings, fetchStatus, fetchUpdateCheck, fetchUsageEventModelFilterOptions, fetchUsageEventRequestLog, fetchUsageEventSourceFilterOptions, fetchUsageEvents, fetchUsageIdentity, fetchVersion, isCostsBusy, isUsageRangeBoundsConflict, revokeAuthSession, updateAuthSessionAlias, updateCpaApiKeyAlias, type UsageEventsExportFormat, type CpaApiKeyOptionsRequest } from '@/lib/api';
 import { useScopedAPIKeyOptions } from '@/components/usage/hooks/useScopedAPIKeyOptions';
 import type { AnalysisLatencyDiagnostics, AnalysisResponse, AuthManagedSessionItem, CpaApiKeyOption, CpaApiKeySettingsItem, OverviewRealtimeWindow, StatusResponse, UsageCustomRange, UsageEvent, UsageEventRequestLogResponse, UsageSourceFilterOption, UsageTimeRange, VersionResponse } from '@/lib/types';
 import { getUsageTabPath, handleUsageTabKeyActivation, resolveInitialUsageTab, shouldHandleUsageNavigation, USAGE_TAB_OPTIONS, type UsageTab } from '@/lib/usageNavigation';
@@ -52,7 +52,9 @@ import {
 } from '@/components/usage/RequestEventsDetailsCard';
 import { clampCustomRangeToCurrentBounds, clampStoredUsageRangeStateToCurrentBounds, parseLegacyCustomRange, parseStoredUsageRangeState, resolveUsageRangeRecoveryTimeZone, serializeUsageRangeState, type StoredUsageRangeState } from '@/utils/usage/customRange';
 import { buildUsageRangeQuery } from '@/utils/usage/rangeQuery';
-import { getDailyAverageCardUsage, isDailyAverageRange } from '@/utils/usage/overview';
+import { isDailyAverageRange } from '@/utils/usage/overview';
+import { getSafeLocalStorage } from '@/utils/safeStorage';
+import { useLogout } from '@/hooks/useLogout';
 import type { Theme } from '@/types';
 import { BrandLink } from '@/components/BrandLink';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
@@ -642,9 +644,7 @@ export const persistMigratedUsageRangeState = (
   return true;
 };
 
-const loadTimeRange = (): LoadedUsageRangeState => loadUsageRangeState(
-  typeof localStorage === 'undefined' ? undefined : localStorage,
-);
+const loadTimeRange = (): LoadedUsageRangeState => loadUsageRangeState(getSafeLocalStorage());
 
 export { normalizeUsageTabValue } from '@/lib/usageNavigation';
 
@@ -896,7 +896,7 @@ export function UsagePage({ onAuthRequired }: { onAuthRequired?: () => void }) {
   const [updateCheckLoading, setUpdateCheckLoading] = useState(false);
   const [topNotice, setTopNotice] = useState<{ kind: TopNoticeKind; message: string } | null>(null);
   const [hasNewVersion, setHasNewVersion] = useState(false);
-  const [loggingOut, setLoggingOut] = useState(false);
+  const { logout: performLogout, loggingOut, error: logoutError, clearError: clearLogoutError } = useLogout({ onAuthRequired });
   const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
   const topNoticeTimerRef = useRef<ReturnType<typeof window.setTimeout> | null>(null);
   const [initialRequestEventsPreferences] = useState(loadRequestEventsPreferences);
@@ -1450,8 +1450,10 @@ export function UsagePage({ onAuthRequired }: { onAuthRequired?: () => void }) {
     }
   }, [onAuthRequired]);
 
-  const loadEvents = useCallback(async () => {
+  const loadEvents = useCallback(async ({ skipIfInFlight = false }: { skipIfInFlight?: boolean } = {}) => {
     if (!usageRangeQuery.valid || !apiKeyFilterReady) return;
+    // Background ticks must not discard an initial request or a cursor batch still loading.
+    if (skipIfInFlight && (eventsRequestControllerRef.current || eventsLoadMoreRequestControllerRef.current)) return;
     const scope = JSON.stringify([usageRangeQuery, requestApiKeyId, eventsModelFilter, eventsSourceFilter, eventsResultFilter]);
     const sameScope = eventsLoadedScopeRef.current === scope;
     eventsRequestControllerRef.current?.abort();
@@ -1781,18 +1783,18 @@ export function UsagePage({ onAuthRequired }: { onAuthRequired?: () => void }) {
     invalidateScopedApiKeys();
     if (!apiKeyFilterReady && shouldShowApiKeyFilter(activeTab)) return;
     if (activeTab === 'realtime') {
-      await loadRealtime();
+      await loadRealtime(undefined, { skipIfInFlight: true });
       return;
     }
     if (activeTab === 'events') {
-      await loadEvents();
+      await loadEvents({ skipIfInFlight: true });
       return;
     }
     if (credentialSectionVisibility.enabled) {
       await refreshCredentials();
       return;
     }
-    await Promise.all([loadUsage(), loadActivity({ skipIfInFlight: true }), loadComparisons({ skipIfInFlight: true })]);
+    await Promise.all([loadUsage(undefined, { skipIfInFlight: true }), loadActivity({ skipIfInFlight: true }), loadComparisons({ skipIfInFlight: true })]);
   }, [activeTab, apiKeyFilterReady, credentialSectionVisibility.enabled, loadActivity, loadComparisons, loadEvents, loadRealtime, loadUsage, refreshCredentials, invalidateScopedApiKeys]);
 
   const handleAutoRefreshError = useCallback((error: unknown) => {
@@ -1826,19 +1828,13 @@ export function UsagePage({ onAuthRequired }: { onAuthRequired?: () => void }) {
   }, [onAuthRequired, recoverRangeBoundsConflict, refreshActiveTab]);
 
   const handleRequestLogout = useCallback(() => {
+    clearLogoutError();
     setLogoutConfirmOpen(true);
-  }, []);
+  }, [clearLogoutError]);
 
   const handleConfirmLogout = useCallback(async () => {
-    setLoggingOut(true);
-    try {
-      await logout();
-    } finally {
-      setLogoutConfirmOpen(false);
-      onAuthRequired?.();
-      setLoggingOut(false);
-    }
-  }, [onAuthRequired]);
+    if (await performLogout()) setLogoutConfirmOpen(false);
+  }, [performLogout]);
 
   const handleUpdateCheck = useCallback(async () => {
     setUpdateCheckLoading(true);
@@ -2000,14 +1996,14 @@ export function UsagePage({ onAuthRequired }: { onAuthRequired?: () => void }) {
     costSparkline
   } = useSparklines({ usage: currentOverviewUsage, loading });
 
-  const overviewDisplayLoading = getOverviewDisplayLoading({ loading, hasUsage: Boolean(usage) });
+  const overviewDisplayLoading = getOverviewDisplayLoading({ loading, hasUsage: Boolean(currentOverviewUsage) });
   const reserveDailyAverageCard = isDailyAverageRange({
     range: timeRange,
     customUnit: customRange?.unit,
     customStart: customRange?.start,
     customEnd: customRange?.end,
   });
-  const dailyAverageCardUsage = getDailyAverageCardUsage(currentOverviewUsage, usage, reserveDailyAverageCard, loading);
+  const dailyAverageCardUsage = currentOverviewUsage;
 
   return (
     <div className={`${styles.pageShell} ${!isEmbeddedInCPAMC ? styles.standalone : ''}`.trim()} data-keeper-page="usage">
@@ -2080,7 +2076,7 @@ export function UsagePage({ onAuthRequired }: { onAuthRequired?: () => void }) {
 
         <main className={styles.contentColumn}>
           <div className={styles.container}>
-            {loading && !usage && activeTab === 'overview' && (
+            {loading && !currentOverviewUsage && activeTab === 'overview' && (
               <div className={styles.loadingOverlay} aria-busy="true">
                 <div className={styles.loadingOverlayContent}>
                   <LoadingSpinner size={28} className={styles.loadingOverlaySpinner} />
@@ -2228,7 +2224,7 @@ export function UsagePage({ onAuthRequired }: { onAuthRequired?: () => void }) {
               <>
                 <ChartLifecycleProvider queryKey={JSON.stringify([usageRangeQuery, requestApiKeyId])} source={currentOverviewUsage} refreshSignal={overviewChartRefresh}>
                   <StatCards
-                  usage={usage}
+                  usage={currentOverviewUsage}
                   loading={overviewDisplayLoading}
                   dailyAverageUsage={dailyAverageCardUsage}
                   reserveDailyAverage={reserveDailyAverageCard}
@@ -2470,6 +2466,7 @@ export function UsagePage({ onAuthRequired }: { onAuthRequired?: () => void }) {
         }
       >
         <p className={styles.sessionSettingsConfirmText}>{t('usage_stats.logout_confirm_body')}</p>
+        {logoutError && <div role="alert" className={styles.errorBox}>{logoutError}</div>}
       </Modal>
     </div>
   );

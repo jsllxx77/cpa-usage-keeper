@@ -307,16 +307,15 @@ export async function loginWithCPAAPIKey(apiKey: string): Promise<void> {
 }
 
 export async function logout(): Promise<void> {
-  try {
-    const response = await apiFetch(apiPath('/auth/logout'), {
-      method: 'POST',
-    })
-    if (!response.ok) {
-      await parseApiError(response, `Failed to logout: ${response.status}`)
-    }
-  } finally {
-    clearEmbedSessionToken()
+  const response = await apiFetch(apiPath('/auth/logout'), {
+    method: 'POST',
+  })
+  if (!response.ok) {
+    await parseApiError(response, `Failed to logout: ${response.status}`)
   }
+  // Keep the fallback session available for retry if logout was not confirmed.
+  // apiFetch already clears it on 401, when the session is known to be invalid.
+  clearEmbedSessionToken()
 }
 
 export async function fetchAuthSessions(signal?: AbortSignal): Promise<AuthManagedSessionsResponse> {

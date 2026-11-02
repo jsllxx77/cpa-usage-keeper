@@ -1,5 +1,6 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
+import { safeStorageGetItem, safeStorageSetItem } from '@/utils/safeStorage';
 
 const LANGUAGE_STORAGE_KEY = 'cpa-usage-keeper-language';
 const DEFAULT_LANGUAGE = 'en';
@@ -13,7 +14,7 @@ export const isSupportedLanguage = (language: string | null): language is Suppor
 
 const getInitialLanguage = (): SupportedLanguage => {
   if (typeof window === 'undefined') return DEFAULT_LANGUAGE;
-  const saved = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
+  const saved = safeStorageGetItem(LANGUAGE_STORAGE_KEY);
   return isSupportedLanguage(saved) ? saved : DEFAULT_LANGUAGE;
 };
 
@@ -95,7 +96,8 @@ const resources = {
         oidc_public_origin: 'Open Keeper at its configured public address to use OIDC.',
         oidc_failed: 'Unable to complete OIDC sign-in. Please try again.',
         api_key_login_failed: 'Unable to open the API Key dashboard right now',
-        session_expired: 'Your session expired. Please sign in again.'
+        session_expired: 'Your session expired. Please sign in again.',
+        logout_failed: 'Sign out could not be confirmed. Your session may still be active. Please try again.'
       },
       key_overview: {
         eyebrow: 'Key overview',
@@ -1045,7 +1047,8 @@ const resources = {
         oidc_public_origin: '请使用配置的 Keeper 公开地址进行 OIDC 登录。',
         oidc_failed: '无法完成 OIDC 登录，请重试。',
         api_key_login_failed: '当前无法打开 API Key 看板',
-        session_expired: '登录状态已失效，请重新登录。'
+        session_expired: '登录状态已失效，请重新登录。',
+        logout_failed: '未能确认注销成功，当前会话可能仍有效，请重试。'
       },
       key_overview: {
         eyebrow: 'API Key 概览',
@@ -1995,7 +1998,8 @@ const resources = {
         oidc_public_origin: '請使用設定的 Keeper 公開位址進行 OIDC 登入。',
         oidc_failed: '無法完成 OIDC 登入，請重試。',
         api_key_login_failed: '目前無法開啟 API Key 看板',
-        session_expired: '登入狀態已失效，請重新登入。'
+        session_expired: '登入狀態已失效，請重新登入。',
+        logout_failed: '無法確認登出成功，目前工作階段可能仍有效，請重試。'
       },
       key_overview: {
         eyebrow: 'API Key 總覽',
@@ -2882,7 +2886,7 @@ if (!i18n.isInitialized) {
 export const persistLanguage = (language: SupportedLanguage) => {
   if (typeof window === 'undefined') return;
   if (!isSupportedLanguage(language)) return;
-  window.localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
+  safeStorageSetItem(LANGUAGE_STORAGE_KEY, language);
 };
 
 export default i18n;

@@ -4,9 +4,10 @@
  */
 
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { createJSONStorage, persist } from 'zustand/middleware';
 import type { Theme } from '@/types';
 import { STORAGE_KEY_THEME } from '@/utils/constants';
+import { safeStorageGetItem, safeStorageRemoveItem, safeStorageSetItem } from '@/utils/safeStorage';
 
 type ResolvedTheme = 'light' | 'dark';
 type AppliedTheme = ResolvedTheme | 'white';
@@ -109,6 +110,12 @@ export const useThemeStore = create<ThemeState>()(
     }),
     {
       name: STORAGE_KEY_THEME,
+      // persist 在 setTheme/首次挂载时同步写入，异常不能中断主题应用。
+      storage: createJSONStorage(() => ({
+        getItem: (key) => safeStorageGetItem(key),
+        setItem: (key, value) => { safeStorageSetItem(key, value); },
+        removeItem: (key) => { safeStorageRemoveItem(key); },
+      })),
     }
   )
 );

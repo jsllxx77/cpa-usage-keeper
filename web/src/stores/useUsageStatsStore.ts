@@ -7,6 +7,7 @@ export const USAGE_STATS_STALE_TIME_MS = 60_000;
 interface LoadUsageStatsOptions {
   onLoaded?: (response: UsageOverviewResponse) => void;
   force?: boolean;
+  skipIfInFlight?: boolean;
   staleTimeMs?: number;
   range?: UsageTimeRange;
   unit?: UsageCustomRangeUnit;
@@ -17,6 +18,7 @@ interface LoadUsageStatsOptions {
 
 interface LoadUsageStatsRealtimeOptions {
   force?: boolean;
+  skipIfInFlight?: boolean;
   staleTimeMs?: number;
   apiKeyId?: string;
   realtimeWindow?: OverviewRealtimeWindow;
@@ -68,6 +70,7 @@ export const useUsageStatsStore = create<UsageStatsState>((set, get) => ({
   loadUsageStats: async (options = {}) => {
     const {
       force = false,
+      skipIfInFlight = false,
       staleTimeMs = USAGE_STATS_STALE_TIME_MS,
       range = '8h',
       onLoaded,
@@ -88,7 +91,7 @@ export const useUsageStatsStore = create<UsageStatsState>((set, get) => ({
 
     if (loading && activeOverviewRequest) {
       // 显式刷新必须取消旧请求并重新取数，不能复用重算前同范围的在途结果。
-      if (!force && activeOverviewRequestKey === queryKey) {
+      if ((!force || skipIfInFlight) && activeOverviewRequestKey === queryKey) {
         return activeOverviewRequest;
       }
       activeOverviewRequestController?.abort();
@@ -144,6 +147,7 @@ export const useUsageStatsStore = create<UsageStatsState>((set, get) => ({
   loadUsageStatsRealtime: async (options = {}) => {
     const {
       force = false,
+      skipIfInFlight = false,
       staleTimeMs = USAGE_STATS_STALE_TIME_MS,
       apiKeyId,
       realtimeWindow,
@@ -163,7 +167,7 @@ export const useUsageStatsStore = create<UsageStatsState>((set, get) => ({
 
     if (realtimeLoading && activeRealtimeRequest) {
       // 与总览保持同一刷新语义；旧请求即使晚到，也受下方 controller 身份检查约束。
-      if (!force && activeRealtimeRequestKey === realtimeQueryKey) {
+      if ((!force || skipIfInFlight) && activeRealtimeRequestKey === realtimeQueryKey) {
         return activeRealtimeRequest;
       }
       activeRealtimeRequestController?.abort();

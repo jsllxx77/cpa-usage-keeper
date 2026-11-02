@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
   CREDENTIAL_LIST_PREFERENCES_STORAGE_KEYS,
   defaultCredentialListPreferences,
@@ -15,6 +15,8 @@ const createStorage = (value: string | null = null) => ({
 const storedValue = (storage: ReturnType<typeof createStorage>) => (
   JSON.parse(String(storage.setItem.mock.calls.at(-1)?.[1]))
 )
+
+afterEach(() => { vi.unstubAllGlobals() })
 
 describe('credential list preferences', () => {
   it('keeps each section on its own default sort', () => {
@@ -92,6 +94,23 @@ describe('credential list preferences', () => {
       getItem: () => { throw new Error('blocked') },
       setItem: vi.fn(),
     })).toEqual(defaultCredentialListPreferences('credentials'))
+  })
+
+  it('catches SecurityError from the default localStorage getter before loading or persisting', () => {
+    vi.stubGlobal('localStorage', undefined)
+    Object.defineProperty(globalThis, 'localStorage', {
+      configurable: true,
+      get: () => { throw new DOMException('Storage blocked', 'SecurityError') },
+    })
+    expect(loadCredentialListPreferences('credentials')).toEqual(defaultCredentialListPreferences('credentials'))
+    expect(loadCredentialListPreferences('ai-provider')).toEqual(defaultCredentialListPreferences('ai-provider'))
+    expect(persistCredentialListPreferences('credentials', { pageSize: 20 })).toBe(false)
+  })
+
+  it.each(['SecurityError', 'QuotaExceededError'])('falls back without propagating %s from storage methods', (name) => {
+    const fail = () => { throw new DOMException('Storage unavailable', name) }
+    expect(loadCredentialListPreferences('credentials', { getItem: fail, setItem: vi.fn() })).toEqual(defaultCredentialListPreferences('credentials'))
+    expect(persistCredentialListPreferences('credentials', { pageSize: 20 }, { getItem: () => null, setItem: fail })).toBe(false)
   })
 
   it('merges a single field into the existing record instead of overwriting it', () => {

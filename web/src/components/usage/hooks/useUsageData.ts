@@ -17,7 +17,7 @@ export interface UseUsageDataReturn {
   loading: boolean;
   error: string;
   lastRefreshedAt: Date | null;
-  loadUsage: (onLoaded?: (response: UsageOverviewResponse) => void) => Promise<void>;
+  loadUsage: (onLoaded?: (response: UsageOverviewResponse) => void, options?: { skipIfInFlight?: boolean }) => Promise<void>;
 }
 
 export interface UseUsageDataOptions {
@@ -47,12 +47,13 @@ export function useUsageData(options: UseUsageDataOptions = {}): UseUsageDataRet
     [customEnd, customStart, customUnit, range],
   );
 
-  const loadUsage = useCallback(async (onLoaded?: (response: UsageOverviewResponse) => void) => {
+  const loadUsage = useCallback(async (onLoaded?: (response: UsageOverviewResponse) => void, options: { skipIfInFlight?: boolean } = {}) => {
     if (!rangeQuery.valid) return;
     try {
       await loadUsageStats({
         onLoaded,
         force: true,
+        skipIfInFlight: options.skipIfInFlight,
         staleTimeMs: USAGE_STATS_STALE_TIME_MS,
         range: rangeQuery.range,
         unit: rangeQuery.unit,

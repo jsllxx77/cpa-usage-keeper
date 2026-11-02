@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { apiPath, createUsageEventRequestLogDownloadURL, getSession, login, loginWithCPAAPIKey, logout } from '../api';
+import { ApiError, apiPath, createUsageEventRequestLogDownloadURL, getSession, login, loginWithCPAAPIKey, logout } from '../api';
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -141,6 +141,51 @@ describe('apiPath CPAMC embed behavior', () => {
     expect(fetchMock).toHaveBeenCalledTimes(4);
     expect(headerValue(fetchMock.mock.calls[2][1], 'X-CPA-Usage-Keeper-Embed-Session')).toBe('embed-token');
     expect(headerValue(fetchMock.mock.calls[3][1], 'X-CPA-Usage-Keeper-Embed-Session')).toBeNull();
+  });
+
+  it.each(['network failure', 'HTTP 500'])('preserves the embed session for reads and logout retry after %s', async (failure) => {
+    const sessionStorage = createSessionStorage();
+    sessionStorage.setItem('cpa_usage_keeper_embed_session', 'embed-token');
+    vi.stubGlobal('window', { __APP_BASE_PATH__: '/keeper/', location: { search: '?embed=cpamc' }, sessionStorage });
+    const fetchMock = vi.spyOn(globalThis, 'fetch');
+    const networkError = new TypeError('offline');
+    if (failure === 'network failure') fetchMock.mockRejectedValueOnce(networkError);
+    else fetchMock.mockResolvedValueOnce(Response.json({ error: 'server error' }, { status: 500 }));
+    fetchMock
+      .mockResolvedValueOnce(Response.json({ authenticated: true, role: 'admin' }))
+      .mockResolvedValueOnce(new Response(null, { status: 204 }))
+      .mockResolvedValueOnce(Response.json({ authenticated: false }));
+
+    if (failure === 'network failure') await expect(logout()).rejects.toBe(networkError);
+    else await expect(logout()).rejects.toMatchObject({ name: 'ApiError', status: 500 });
+    expect(sessionStorage.values()).toEqual(['embed-token']);
+    await expect(getSession()).resolves.toMatchObject({ authenticated: true });
+    expect(sessionStorage.values()).toEqual(['embed-token']);
+    await logout();
+    expect(sessionStorage.values()).toEqual([]);
+    await getSession();
+
+    expect(fetchMock).toHaveBeenCalledTimes(4);
+    expect(headerValue(fetchMock.mock.calls[0][1], 'X-CPA-Usage-Keeper-Embed-Session')).toBe('embed-token');
+    expect(headerValue(fetchMock.mock.calls[1][1], 'X-CPA-Usage-Keeper-Embed-Session')).toBe('embed-token');
+    expect(headerValue(fetchMock.mock.calls[2][1], 'X-CPA-Usage-Keeper-Embed-Session')).toBe('embed-token');
+    expect(headerValue(fetchMock.mock.calls[3][1], 'X-CPA-Usage-Keeper-Embed-Session')).toBeNull();
+    expect(fetchMock.mock.calls[2][1]).toMatchObject({ method: 'POST', credentials: 'include' });
+  });
+
+  it('clears the embed session when logout confirms it is already invalid with 401', async () => {
+    const sessionStorage = createSessionStorage();
+    sessionStorage.setItem('cpa_usage_keeper_embed_session', 'expired-token');
+    vi.stubGlobal('window', { __APP_BASE_PATH__: '/keeper/', location: { search: '?embed=cpamc' }, sessionStorage });
+    const fetchMock = vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(Response.json({ error: 'expired' }, { status: 401 }))
+      .mockResolvedValueOnce(Response.json({ authenticated: false }));
+
+    await expect(logout()).rejects.toBeInstanceOf(ApiError);
+    expect(sessionStorage.values()).toEqual([]);
+    await getSession();
+    expect(headerValue(fetchMock.mock.calls[0][1], 'X-CPA-Usage-Keeper-Embed-Session')).toBe('expired-token');
+    expect(headerValue(fetchMock.mock.calls[1][1], 'X-CPA-Usage-Keeper-Embed-Session')).toBeNull();
   });
 
   it('clears an existing embed session token when getSession returns unauthenticated', async () => {

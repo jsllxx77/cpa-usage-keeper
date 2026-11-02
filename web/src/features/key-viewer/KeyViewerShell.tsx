@@ -1,7 +1,8 @@
-import { useCallback, useState, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { AuthSessionAPIKeySummary } from '@/lib/types';
-import { appPath, logout } from '@/lib/api';
+import { appPath } from '@/lib/api';
+import { useLogout } from '@/hooks/useLogout';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { KEY_VIEWER_PAGE_PATHS, type KeyViewerPage, type KeyViewerPath } from './navigation';
 import styles from './KeyViewerShell.module.scss';
@@ -40,23 +41,21 @@ export function KeyViewerShell({
   onAuthRequired,
 }: KeyViewerShellProps) {
   const { t } = useTranslation();
-  const [loggingOut, setLoggingOut] = useState(false);
+  const { logout: handleLogout, loggingOut, error: logoutError } = useLogout({ onAuthRequired });
   const identityLabel = apiKey?.display_key || t('key_overview.identity_unknown');
-
-  const handleLogout = useCallback(async () => {
-    setLoggingOut(true);
-    try {
-      await logout();
-    } finally {
-      onAuthRequired?.();
-      setLoggingOut(false);
-    }
-  }, [onAuthRequired]);
 
   return (
     <div className={styles.pageShell} data-keeper-page="key-viewer">
       <div className={styles.pageFrame}>
         <DashboardHeader identity={identityLabel} onLogout={() => void handleLogout()} loggingOut={loggingOut} />
+        {logoutError && (
+          <div className={`${styles.errorBox} ${styles.errorBoxWithAction}`} role="alert">
+            <span>{logoutError}</span>
+            <button type="button" className={styles.errorRetryButton} disabled={loggingOut} aria-busy={loggingOut} onClick={() => void handleLogout()}>
+              {t(loggingOut ? 'common.loading' : 'common.retry')}
+            </button>
+          </div>
+        )}
 
         <main className={styles.contentColumn}>
           <div className={styles.container}>

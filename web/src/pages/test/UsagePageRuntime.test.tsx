@@ -4,10 +4,12 @@ import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import i18n from '@/i18n';
+import { ApiError } from '@/lib/api';
 import type { UsageEventRequestLogResponse, UsageEventsResponse } from '@/lib/types';
 
 const api = vi.hoisted(() => ({
   fetchUsageEventRequestLog: vi.fn(),
+  logout: vi.fn(),
 }));
 
 vi.mock('react-chartjs-2', () => ({
@@ -79,6 +81,7 @@ describe('UsagePage runtime behavior', () => {
     localStorage.clear();
     window.history.replaceState(null, '', '/request-events');
     api.fetchUsageEventRequestLog.mockReset();
+    api.logout.mockReset().mockResolvedValue(undefined);
     container = document.createElement('div');
     document.body.appendChild(container);
     root = createRoot(container);
@@ -87,8 +90,9 @@ describe('UsagePage runtime behavior', () => {
   afterEach(async () => {
     await act(async () => root.unmount());
     container.remove();
-    localStorage.clear();
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+    localStorage.clear();
   });
 
   const render = async () => {
@@ -114,6 +118,40 @@ describe('UsagePage runtime behavior', () => {
     expect(window.location.pathname).toBe('/settings');
     expect(trigger.getAttribute('aria-expanded')).toBe('false');
     expect(networkFetch).not.toHaveBeenCalled();
+  });
+
+  it.each(['getter', 'getItem', 'setItem'] as const)('mounts the administrator page when localStorage %s throws', async (failure) => {
+    const denied = () => { throw new DOMException('Storage access denied', 'SecurityError'); };
+    if (failure === 'getter') vi.spyOn(globalThis, 'localStorage', 'get').mockImplementation(denied);
+    else {
+      const storage = localStorage;
+      vi.stubGlobal('localStorage', {
+        getItem: failure === 'getItem' ? denied : storage.getItem.bind(storage),
+        setItem: failure === 'setItem' ? denied : storage.setItem.bind(storage),
+        removeItem: storage.removeItem.bind(storage),
+      });
+    }
+    await render();
+    expect(container.querySelector('[data-keeper-page="usage"]')).not.toBeNull();
+    expect(container.textContent).toContain('gpt-5');
+  });
+
+  it.each([new Error('Network offline'), new ApiError('Server error', 500)])('keeps a failed administrator logout retryable: %s', async (failure) => {
+    const onAuthRequired = vi.fn();
+    api.logout.mockRejectedValueOnce(failure).mockResolvedValueOnce(undefined);
+    await act(async () => root.render(<UsagePage onAuthRequired={onAuthRequired} />));
+    await act(async () => container.querySelector<HTMLButtonElement>('[aria-haspopup="menu"][aria-label="More actions"]')!.click());
+    const logout = [...container.querySelectorAll<HTMLButtonElement>('[role="menuitem"]')].find(node => node.textContent === i18n.t('common.logout'))!;
+    await act(async () => logout.click());
+    const confirm = () => [...document.querySelectorAll<HTMLButtonElement>('[role="dialog"] button')].find(node => node.textContent === i18n.t('usage_stats.logout_confirm_action'))!;
+    expect(confirm()).toBeDefined();
+    await act(async () => confirm().click());
+    expect(onAuthRequired).not.toHaveBeenCalled();
+    expect(document.querySelector('[role="dialog"] [role="alert"]')?.textContent).toContain(i18n.t('auth.logout_failed'));
+    expect(confirm().disabled).toBe(false);
+    await act(async () => confirm().click());
+    expect(api.logout).toHaveBeenCalledTimes(2);
+    expect(onAuthRequired).toHaveBeenCalledOnce();
   });
 
   const openPendingRequestLog = async () => {

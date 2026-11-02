@@ -244,6 +244,23 @@ describe('UsagePage top API Key request event filter', () => {
     expect(api.exportUsageEvents).toHaveBeenLastCalledWith(expect.objectContaining({ range: 'yesterday' }), 'json', expect.objectContaining({ apiKeyId: '11' }));
   });
 
+  it('does not cancel a slow event request at automatic refresh ticks, while manual refresh can replace it', async () => {
+    vi.useFakeTimers();
+    const pending = Promise.withResolvers<UsageEventsResponse>();
+    api.fetchUsageEvents.mockReturnValueOnce(pending.promise);
+    await render();
+    const signal = api.fetchUsageEvents.mock.calls[0][1] as AbortSignal;
+    await act(async () => vi.advanceTimersByTimeAsync(30_000));
+    expect(api.fetchUsageEvents).toHaveBeenCalledTimes(1);
+    expect(signal.aborted).toBe(false);
+    await act(async () => triggerHeaderRefresh());
+    expect(api.fetchUsageEvents).toHaveBeenCalledTimes(2);
+    expect(signal.aborted).toBe(true);
+    await act(async () => pending.resolve({ ...firstPage, events: [{ ...firstPage.events[0], model: 'obsolete-slow-model' }] }));
+    expect(container.textContent).not.toContain('obsolete-slow-model');
+    expect(container.textContent).toContain('gpt-5');
+  });
+
   it('invalidates candidates on automatic refresh and range changes, but fetches immediately on manual refresh', async () => {
     vi.useFakeTimers();
     await render();

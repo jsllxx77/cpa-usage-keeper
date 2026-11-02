@@ -7,7 +7,7 @@ export interface UseOverviewRealtimeDataReturn {
   realtime: OverviewRealtimeBlock | null;
   loading: boolean;
   error: string;
-  loadRealtime: (onLoaded?: (response: OverviewRealtimeBlock) => void) => Promise<void>;
+  loadRealtime: (onLoaded?: (response: OverviewRealtimeBlock) => void, options?: { skipIfInFlight?: boolean }) => Promise<void>;
 }
 
 export interface UseOverviewRealtimeDataOptions {
@@ -60,10 +60,11 @@ export function useOverviewRealtimeData(options: UseOverviewRealtimeDataOptions 
     realtimeQueryKey,
   });
 
-  const loadRealtime = useCallback(async (onLoaded?: (response: OverviewRealtimeBlock) => void) => {
+  const loadRealtime = useCallback(async (onLoaded?: (response: OverviewRealtimeBlock) => void, options: { skipIfInFlight?: boolean } = {}) => {
     try {
       await loadUsageStatsRealtime({
         force: true,
+        skipIfInFlight: options.skipIfInFlight,
         staleTimeMs: USAGE_STATS_STALE_TIME_MS,
         apiKeyId,
         realtimeWindow,

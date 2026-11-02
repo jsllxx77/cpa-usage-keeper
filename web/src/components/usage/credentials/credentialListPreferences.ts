@@ -1,4 +1,5 @@
 import { USAGE_IDENTITY_PAGE_SORTS, type UsageIdentityPageSort } from '@/lib/api'
+import { getSafeLocalStorage } from '@/utils/safeStorage'
 import { CREDENTIALS_PAGE_SIZE, CREDENTIAL_PAGE_SIZE_OPTIONS } from './credentialViewModels'
 import { normalizeCredentialProviderFilterKey, type CredentialProviderFilterKey, type CredentialProviderFilterScope } from './credentialProviderFilters'
 
@@ -25,10 +26,6 @@ interface CredentialListPreferencesStorage {
   getItem: (key: string) => string | null
   setItem: (key: string, value: string) => void
 }
-
-const defaultStorage = (): CredentialListPreferencesStorage | undefined => (
-  typeof localStorage === 'undefined' ? undefined : localStorage
-)
 
 export const defaultCredentialListPreferences = (scope: CredentialProviderFilterScope): CredentialListPreferences => ({
   sort: DEFAULT_SORT_BY_SCOPE[scope],
@@ -68,7 +65,7 @@ export const normalizeCredentialListPreferences = (
 
 export const loadCredentialListPreferences = (
   scope: CredentialProviderFilterScope,
-  storage: CredentialListPreferencesStorage | undefined = defaultStorage(),
+  storage: CredentialListPreferencesStorage | undefined = getSafeLocalStorage(),
 ): CredentialListPreferences => {
   try {
     const raw = storage?.getItem(CREDENTIAL_LIST_PREFERENCES_STORAGE_KEYS[scope])
@@ -84,7 +81,7 @@ export const loadCredentialListPreferences = (
 export const persistCredentialListPreferences = (
   scope: CredentialProviderFilterScope,
   patch: Partial<CredentialListPreferences>,
-  storage: CredentialListPreferencesStorage | undefined = defaultStorage(),
+  storage: CredentialListPreferencesStorage | undefined = getSafeLocalStorage(),
 ): boolean => {
   try {
     if (!storage) {
