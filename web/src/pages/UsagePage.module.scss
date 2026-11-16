@@ -1737,8 +1737,9 @@
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .apiKeySettingsItem {
-    // fork: Geist hover only darkens the border (no lift or shadow)
+  .apiKeySettingsItem,
+  .sessionSettingsItem {
+    // fork: Geist hover only darkens the border (no lift or shadow); v2.1.1 extends it to session cards.
     transition: border-color $transition-fast;
 
     &:hover {
@@ -1748,7 +1749,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .apiKeySettingsItem {
+  .apiKeySettingsItem,
+  .sessionSettingsItem {
     transition: none;
   }
 }
@@ -2289,6 +2291,12 @@
   min-height: 400px;
   align-items: center;
   justify-content: center;
+}
+
+.requestEventsTitleMeta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .requestEventsCountBadge {
