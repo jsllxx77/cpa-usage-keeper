@@ -1,6 +1,7 @@
 import type { CSSProperties, ReactNode } from 'react';
 import { USAGE_CHART_COMPOSITION_COLORS } from '@/utils/usage/chartConfig';
 import { useTranslation } from 'react-i18next';
+import { MetricChip } from '@/components/ui';
 import { formatCompactNumber, formatFixedTwoDecimals, formatUsd } from '@/utils/usage';
 import styles from '@/pages/UsagePage.module.scss';
 
@@ -16,10 +17,14 @@ export interface UsageShareItem {
 
 function UsageMetaPill({ label, value }: { label: string; value: string }) {
   return (
-    <span className={styles.overviewRealtimeUsageMetaPill}>
-      <span className={styles.overviewRealtimeUsageMetaLabel}>{label}</span>
-      <span className={styles.overviewRealtimeUsageMetaValue}>{value}</span>
-    </span>
+    <MetricChip
+      variant="meta"
+      label={label}
+      value={value}
+      className={styles.overviewRealtimeUsageMetaPill}
+      labelClassName={styles.overviewRealtimeUsageMetaLabel}
+      valueClassName={styles.overviewRealtimeUsageMetaValue}
+    />
   );
 }
 

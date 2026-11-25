@@ -16,7 +16,11 @@ const DEFAULT_SORT_BY_SCOPE: Record<CredentialProviderFilterScope, UsageIdentity
   'ai-provider': 'total_requests',
 }
 
+export type CredentialViewMode = 'cards' | 'list'
+export type CredentialListContentMode = 'quota' | 'health'
+
 export interface CredentialListPreferences {
+  viewMode: CredentialViewMode
   sort: UsageIdentityPageSort
   pageSize: number
   providerFilter: CredentialProviderFilterKey
@@ -28,6 +32,7 @@ interface CredentialListPreferencesStorage {
 }
 
 export const defaultCredentialListPreferences = (scope: CredentialProviderFilterScope): CredentialListPreferences => ({
+  viewMode: 'cards',
   sort: DEFAULT_SORT_BY_SCOPE[scope],
   pageSize: CREDENTIALS_PAGE_SIZE,
   providerFilter: 'all',
@@ -57,6 +62,7 @@ export const normalizeCredentialListPreferences = (
     return defaultCredentialListPreferences(scope)
   }
   return {
+    viewMode: stored.viewMode === 'list' ? 'list' : 'cards',
     sort: normalizeSort(scope, stored.sort),
     pageSize: normalizePageSize(stored.pageSize),
     providerFilter: normalizeCredentialProviderFilterKey(scope, stored.providerFilter),
@@ -75,6 +81,24 @@ export const loadCredentialListPreferences = (
     return normalizeCredentialListPreferences(scope, JSON.parse(raw))
   } catch {
     return defaultCredentialListPreferences(scope)
+  }
+}
+
+const LIST_CONTENT_MODE_KEY = 'cpa.credentials.displayMode'
+
+export function readCredentialListContentMode(storage: CredentialListPreferencesStorage | undefined = getSafeLocalStorage()): CredentialListContentMode {
+  try {
+    return storage?.getItem(LIST_CONTENT_MODE_KEY) === 'health' ? 'health' : 'quota'
+  } catch {
+    return 'quota'
+  }
+}
+
+export function persistCredentialListContentMode(mode: CredentialListContentMode, storage: CredentialListPreferencesStorage | undefined = getSafeLocalStorage()): void {
+  try {
+    storage?.setItem(LIST_CONTENT_MODE_KEY, mode)
+  } catch {
+    // Storage may be unavailable; the page state remains usable.
   }
 }
 

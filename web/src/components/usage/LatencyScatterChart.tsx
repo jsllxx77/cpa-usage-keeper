@@ -41,6 +41,8 @@ type LatencyThemeColors = {
   pointBorder?: string;
   p95TTFT: string;
   p95Latency: string;
+  p95TTFTText: string;
+  p95LatencyText: string;
 };
 type LatencyDiagnosticsPluginOptions = {
   p95TTFTMS: number;
@@ -63,12 +65,16 @@ const LATENCY_COLORS = {
     pointBorder: 'rgba(0, 112, 243, 0.95)',
     p95TTFT: '#f5a524',
     p95Latency: '#f81ce5',
+    p95TTFTText: '#a35200',
+    p95LatencyText: '#be185d',
   },
   dark: {
     pointFill: 'rgba(0, 229, 255, 0.72)',
     pointBorder: '#00e5ff',
     p95TTFT: '#f5b544',
     p95Latency: '#f81ce5',
+    p95TTFTText: '#f5b544',
+    p95LatencyText: '#f81ce5',
   },
 } satisfies Record<'light' | 'dark', LatencyThemeColors>;
 const LATENCY_REFERENCE_HIT_RADIUS_PX = 8;
@@ -238,7 +244,7 @@ const createLatencyDiagnosticsPlugin = (formatDuration: (value: number) => strin
         ctx.moveTo(x, chartArea.top);
         ctx.lineTo(x, chartArea.bottom);
         ctx.stroke();
-        drawLatencyReferenceLabel(chart, options.labels.p95TTFT, x + 6, chartArea.top + 16, options.colors.p95TTFT, 'left');
+        drawLatencyReferenceLabel(chart, options.labels.p95TTFT, x + 6, chartArea.top + 16, options.colors.p95TTFTText, 'left');
       }
     }
     if (options.p95LatencyMS > 0) {
@@ -252,7 +258,7 @@ const createLatencyDiagnosticsPlugin = (formatDuration: (value: number) => strin
         ctx.moveTo(chartArea.left, y);
         ctx.lineTo(chartArea.right, y);
         ctx.stroke();
-        drawLatencyReferenceLabel(chart, options.labels.p95Latency, chartArea.right - 6, y - 12, options.colors.p95Latency, 'right');
+        drawLatencyReferenceLabel(chart, options.labels.p95Latency, chartArea.right - 6, y - 12, options.colors.p95LatencyText, 'right');
       }
     }
     if (hover) {
